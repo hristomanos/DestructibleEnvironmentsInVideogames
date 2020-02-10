@@ -1,0 +1,10 @@
+﻿E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(115,34-54): warning X3206: 'dot': implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(119,34-71): warning X3206: implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(205,23-55): warning X3206: implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(206,25-64): warning X3206: implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(240,5-37): warning X3206: implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(245,40-62): warning X3206: implicit truncation of vector type
+E:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\shader.fx(296,48-81): warning X3206: 'dot': implicit truncation of vector type
+FXC : error X3501: 'main': entrypoint not found
+  
+  compilation failed; no code produced
