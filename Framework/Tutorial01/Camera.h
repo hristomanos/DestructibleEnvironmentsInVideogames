@@ -10,9 +10,9 @@ public:
 	Camera();
 	~Camera();
 
-	XMVECTOR camPosition;
-	XMVECTOR camTarget;
-	XMVECTOR camUp;
+	XMVECTOR camPosition = XMVectorSet(0.0f, 0.0f, -0.5f, 0.0f);
+	XMVECTOR camTarget = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR camUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	XMMATRIX WVP;
 	XMMATRIX World;

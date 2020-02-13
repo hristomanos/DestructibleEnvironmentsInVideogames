@@ -16,6 +16,8 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Utilities\Helper.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="DirectInput.cpp" />
+    <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -53,6 +55,8 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Utilities\Helper.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="DirectInput.h" />
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

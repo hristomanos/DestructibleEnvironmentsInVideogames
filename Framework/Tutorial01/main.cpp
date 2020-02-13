@@ -53,17 +53,17 @@ void OnMouseMove(WPARAM btnState, int x, int y);
 //ID3D11VertexShader *g_pVertexShader = nullptr;
 
 //ID3D11PixelShader *g_pPixelShader = nullptr;
-ID3D11PixelShader *g_pPixelShaderSolid = nullptr;
+//ID3D11PixelShader *g_pPixelShaderSolid = nullptr;
 
-ID3D11InputLayout *g_pVertexLayout = nullptr;
+//ID3D11InputLayout *g_pVertexLayout = nullptr;
 //ID3D11Buffer*           g_pVertexBuffer = nullptr;
 //ID3D11Buffer*           g_pIndexBuffer = nullptr;
 //ID3D11Buffer*           g_pConstantBuffer = nullptr;
 //ID3D11Buffer*           g_pMaterialConstantBuffer = nullptr;
 //ID3D11Buffer*           g_pLightConstantBuffer = nullptr;
 
-ID3D11ShaderResourceView *g_pTextureRV = nullptr;
-ID3D11ShaderResourceView *g_pTextureArr[3]{nullptr, nullptr};
+//ID3D11ShaderResourceView *g_pTextureRV = nullptr;
+//ID3D11ShaderResourceView *g_pTextureArr[3]{nullptr, nullptr};
 
 //ID3D11SamplerState *	g_pSamplerLinear = nullptr;
 //ID3D11SamplerState *	g_pSamplerNormal = nullptr;
@@ -79,7 +79,7 @@ XMMATRIX g_Projection;
 
 POINT g_LastMousePos;
 
-Camera2 g_Camera;
+//Camera2 g_Camera;
 
 #define DEFAULT_WINDOW_TITLE L"Framework"
 #define MS_PER_UPDATE 16.66666666667
@@ -95,19 +95,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	/*if (FAILED(InitWindow(hInstance, nCmdShow)))
-		return 0;
-
-	if (FAILED(InitDevice()))
-	{
-		CleanupDevice();
-		return 0;
-	}*/
 
 	//Create an application instance
 	Application* application = new Application(DEFAULT_WINDOW_TITLE, 1280, 720);
 	if (FAILED(application->Init(hInstance, nCmdShow)))
 		return -1;
+
 
 	// Main message loop
 	MSG msg = {0};
@@ -121,13 +114,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		}
 		else
 		{
+			
 			application->Update(MS_PER_UPDATE / 1000.0f);
 			application->Draw();
 
 		}
 	}
-
-	application->Release();
 
 	delete application;
 	application = nullptr;
@@ -135,50 +127,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	return (int)msg.wParam;
 }
 
-//--------------------------------------------------------------------------------------
-// Register class and create window
-//--------------------------------------------------------------------------------------
-//HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow)
-//{
-//	// Register class
-//	WNDCLASSEX wcex;
-//	wcex.cbSize = sizeof(WNDCLASSEX);
-//	wcex.style = CS_HREDRAW | CS_VREDRAW;
-//	wcex.lpfnWndProc = WndProc;
-//	wcex.cbClsExtra = 0;
-//	wcex.cbWndExtra = 0;
-//	wcex.hInstance = hInstance;
-//	wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_TUTORIAL1);
-//	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-//	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-//	wcex.lpszMenuName = nullptr;
-//	wcex.lpszClassName = L"TutorialWindowClass";
-//	wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_TUTORIAL1);
-//	if (!RegisterClassEx(&wcex))
-//		return E_FAIL;
-//
-//	// Create window
-//	g_hInst = hInstance;
-//	RECT rc = {0, 0, 1280, 720};
-//
-//	g_viewWidth = 1280;
-//	g_viewHeight = 720;
-//
-//	g_LastMousePos.x = 0;
-//	g_LastMousePos.y = 0;
-//
-//	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-//	g_hWnd = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial 5",
-//						  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-//						  CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-//						  nullptr);
-//	if (!g_hWnd)
-//		return E_FAIL;
-//
-//	ShowWindow(g_hWnd, nCmdShow);
-//
-//	return S_OK;
-//}
+
 
 //--------------------------------------------------------------------------------------
 // Helper for compiling shaders with D3DCompile
@@ -219,206 +168,7 @@ HRESULT CompileShaderFromFile(const WCHAR *szFileName, LPCSTR szEntryPoint, LPCS
 	return S_OK;
 }
 
-//--------------------------------------------------------------------------------------
-// Create Direct3D device and swap chain
-//--------------------------------------------------------------------------------------
-//HRESULT InitDevice()
-//{
-//	HRESULT hr = S_OK;
-//
-//	RECT rc;
-//	//GetClientRect(g_hWnd, &rc);
-//	UINT width = rc.right - rc.left;
-//	UINT height = rc.bottom - rc.top;
-//
-//	UINT createDeviceFlags = 0;
-//#ifdef _DEBUG
-//	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//#endif
-//
-//	D3D_DRIVER_TYPE driverTypes[] =
-//		{
-//			D3D_DRIVER_TYPE_HARDWARE,
-//			D3D_DRIVER_TYPE_WARP,
-//			D3D_DRIVER_TYPE_REFERENCE,
-//		};
-//	UINT numDriverTypes = ARRAYSIZE(driverTypes);
-//
-//	D3D_FEATURE_LEVEL featureLevels[] =
-//		{
-//			D3D_FEATURE_LEVEL_11_1,
-//			D3D_FEATURE_LEVEL_11_0,
-//			D3D_FEATURE_LEVEL_10_1,
-//			D3D_FEATURE_LEVEL_10_0,
-//		};
-//	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-//
-//	for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
-//	{
-//		//g_driverType = driverTypes[driverTypeIndex];
-//		//hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-//							  // D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
-//
-//		if (hr == E_INVALIDARG)
-//		{
-//			// DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-//			hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
-//								   D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
-//		}
-//
-//		if (SUCCEEDED(hr))
-//			break;
-//	}
-//	if (FAILED(hr))
-//		return hr;
-//
-//	// Obtain DXGI factory from device (since we used nullptr for pAdapter above)
-//	IDXGIFactory1 *dxgiFactory = nullptr;
-//	{
-//		IDXGIDevice *dxgiDevice = nullptr;
-//		hr = g_pd3dDevice->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void **>(&dxgiDevice));
-//		if (SUCCEEDED(hr))
-//		{
-//			IDXGIAdapter *adapter = nullptr;
-//			hr = dxgiDevice->GetAdapter(&adapter);
-//			if (SUCCEEDED(hr))
-//			{
-//				hr = adapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void **>(&dxgiFactory));
-//				adapter->Release();
-//			}
-//			dxgiDevice->Release();
-//		}
-//	}
-//	if (FAILED(hr))
-//		return hr;
-//
-//	// Create swap chain
-//	IDXGIFactory2 *dxgiFactory2 = nullptr;
-//	hr = dxgiFactory->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void **>(&dxgiFactory2));
-//	if (dxgiFactory2)
-//	{
-//		// DirectX 11.1 or later
-//		hr = g_pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void **>(&g_pd3dDevice1));
-//		if (SUCCEEDED(hr))
-//		{
-//			(void)g_pImmediateContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void **>(&g_pImmediateContext1));
-//		}
-//
-//		DXGI_SWAP_CHAIN_DESC1 sd = {};
-//		sd.Width = width;
-//		sd.Height = height;
-//		sd.Format = DXGI_FORMAT_R16G16B16A16_FLOAT; //  DXGI_FORMAT_R16G16B16A16_FLOAT;////DXGI_FORMAT_R8G8B8A8_UNORM;
-//		sd.SampleDesc.Count = 1;
-//		sd.SampleDesc.Quality = 0;
-//		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-//		sd.BufferCount = 1;
-//
-//		hr = dxgiFactory2->CreateSwapChainForHwnd(g_pd3dDevice, g_hWnd, &sd, nullptr, nullptr, &g_pSwapChain1);
-//		if (SUCCEEDED(hr))
-//		{
-//			hr = g_pSwapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void **>(&g_pSwapChain));
-//		}
-//
-//		dxgiFactory2->Release();
-//	}
-//	else
-//	{
-//		// DirectX 11.0 systems
-//		DXGI_SWAP_CHAIN_DESC sd = {};
-//		sd.BufferCount = 1;
-//		sd.BufferDesc.Width = width;
-//		sd.BufferDesc.Height = height;
-//		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-//		sd.BufferDesc.RefreshRate.Numerator = 60;
-//		sd.BufferDesc.RefreshRate.Denominator = 1;
-//		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-//		sd.OutputWindow = g_hWnd;
-//		sd.SampleDesc.Count = 1;
-//		sd.SampleDesc.Quality = 0;
-//		sd.Windowed = TRUE;
-//
-//		hr = dxgiFactory->CreateSwapChain(g_pd3dDevice, &sd, &g_pSwapChain);
-//	}
-//
-//	// Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
-//	dxgiFactory->MakeWindowAssociation(g_hWnd, DXGI_MWA_NO_ALT_ENTER);
-//
-//	dxgiFactory->Release();
-//
-//	if (FAILED(hr))
-//		return hr;
-//
-//	// Create a render target view
-//	ID3D11Texture2D *pBackBuffer = nullptr;
-//	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pBackBuffer));
-//	if (FAILED(hr))
-//		return hr;
-//
-//	hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_pRenderTargetView);
-//	pBackBuffer->Release();
-//	if (FAILED(hr))
-//		return hr;
-//
-//	// Create depth stencil texture
-//	D3D11_TEXTURE2D_DESC descDepth = {};
-//	descDepth.Width = width;
-//	descDepth.Height = height;
-//	descDepth.MipLevels = 1;
-//	descDepth.ArraySize = 2;
-//	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-//	descDepth.SampleDesc.Count = 1;
-//	descDepth.SampleDesc.Quality = 0;
-//	descDepth.Usage = D3D11_USAGE_DEFAULT;
-//	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-//	descDepth.CPUAccessFlags = 0;
-//	descDepth.MiscFlags = 0;
-//	hr = g_pd3dDevice->CreateTexture2D(&descDepth, nullptr, &g_pDepthStencil);
-//	if (FAILED(hr))
-//		return hr;
-//
-//	// Create the depth stencil view
-//	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-//	descDSV.Format = descDepth.Format;
-//	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-//	descDSV.Texture2D.MipSlice = 0;
-//	hr = g_pd3dDevice->CreateDepthStencilView(g_pDepthStencil, &descDSV, &g_pDepthStencilView);
-//	if (FAILED(hr))
-//		return hr;
-//
-//	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-//
-//	// Setup the viewport
-//	D3D11_VIEWPORT vp;
-//	vp.Width = (FLOAT)width;
-//	vp.Height = (FLOAT)height;
-//	vp.MinDepth = 0.0f;
-//	vp.MaxDepth = 1.0f;
-//	vp.TopLeftX = 0;
-//	vp.TopLeftY = 0;
-//	g_pImmediateContext->RSSetViewports(1, &vp);
-//
-//	hr = InitMesh();
-//	if (FAILED(hr))
-//	{
-//		MessageBox(nullptr,
-//				   L"Failed to initialise mesh.", L"Error", MB_OK);
-//		return hr;
-//	}
-//
-//	hr = InitWorld(width, height);
-//	if (FAILED(hr))
-//	{
-//		MessageBox(nullptr,
-//				   L"Failed to initialise world.", L"Error", MB_OK);
-//		return hr;
-//	}
-//
-//	hr = g_GameObject.initMesh(g_pd3dDevice, g_pImmediateContext);
-//	if (FAILED(hr))
-//		return hr;
-//
-//	return S_OK;
-//}
+
 
 // ***************************************************************************************
 // InitMesh
@@ -640,34 +390,34 @@ HRESULT CompileShaderFromFile(const WCHAR *szFileName, LPCSTR szEntryPoint, LPCS
 // ***************************************************************************************
 // InitWorld
 // ***************************************************************************************
-HRESULT InitWorld(int width, int height)
-{
-	// Initialize the world matrix
-	g_World1 = XMMatrixIdentity();
-
-	// Initialize the view matrix
-	XMVECTOR Eye = XMLoadFloat4(&g_EyePosition);
-	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	g_View = XMMatrixLookAtLH(Eye, At, Up);
-
-	// Initialize the projection matrix
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
-
-	// Initialize Camera lens
-	XMFLOAT3 eye = XMFLOAT3(0.0f, 2.0f, -5.0f);
-	XMFLOAT3 at = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-
-	//_camera = new Camera(eye, at, up, width, width, 0.01f, 200.0f);
-	g_Camera.SetPosition(0.0f, 0.0f, -2.0f);
-	g_Camera.SetProjectionValues(90.0f, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
-	//static_cast<float>(width) / static_cast<float>(height)
-
-	
-
-	return S_OK;
-}
+//HRESULT InitWorld(int width, int height)
+//{
+//	// Initialize the world matrix
+//	g_World1 = XMMatrixIdentity();
+//
+//	// Initialize the view matrix
+//	XMVECTOR Eye = XMLoadFloat4(&g_EyePosition);
+//	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+//	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+//	g_View = XMMatrixLookAtLH(Eye, At, Up);
+//
+//	// Initialize the projection matrix
+//	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
+//
+//	// Initialize Camera lens
+//	XMFLOAT3 eye = XMFLOAT3(0.0f, 2.0f, -5.0f);
+//	XMFLOAT3 at = XMFLOAT3(0.0f, 0.0f, 0.0f);
+//	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+//
+//	//_camera = new Camera(eye, at, up, width, width, 0.01f, 200.0f);
+//	g_Camera.SetPosition(0.0f, 0.0f, -2.0f);
+//	g_Camera.SetProjectionValues(90.0f, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
+//	//static_cast<float>(width) / static_cast<float>(height)
+//
+//	
+//
+//	return S_OK;
+//}
 
 //--------------------------------------------------------------------------------------
 // Clean up the objects we've created
@@ -849,57 +599,57 @@ void Render()
 	//g_pSwapChain->Present(0, 0);
 }
 
-void HandleKeyboardInput(float dt)
-{
-	//
-	// Control the camera.
-	//
-	//XMFLOAT3 cameraPos = _camera->GetPosition();
-	const float cameraSpeed = 0.001f;
-
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		//_camera->TranslateByAmount(0.0f, 0.0f, 0.001f);
-		g_Camera.AdjustPosition(0.0f, 0.0f, 0.001f);
-	}
-
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
-		//g_Camera.Walk(-1.0f * dt);
-		//g_EyePosition.z -= 1.0f;
-		//cameraPos.z -= 0.1f * dt;
-		//_camera->TranslateByAmount(0.0f, 0.0f, -0.001f);
-		g_Camera.AdjustPosition(0.0f, 0.0f, -0.001f);
-	}
-
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		//g_Camera.Strafe(-1.0f * dt);
-		//g_EyePosition.x -= 1.0f;
-		//cameraPos.x -= 0.1f * dt;
-		//_camera->TranslateByAmount(-0.001f, 0.0f, 0.0f);
-		g_Camera.AdjustPosition(-0.001f, 0.0f, 0.0f);
-	}
-
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		//g_Camera.Strafe(1.0f * dt);
-		//g_EyePosition.x += 1.0f;
-		//cameraPos.x += 0.1f * dt;
-		//_camera->TranslateByAmount(0.001f, 0.0f, 0.0f);
-		g_Camera.AdjustPosition(0.001f, 0.0f, 0.0f);
-	}
-
-	if (GetAsyncKeyState('E'))
-	{
-		g_Camera.AdjustRotation(0.0f, 0.001f, 0);
-	}
-
-	if (GetAsyncKeyState('Q'))
-	{
-		g_Camera.AdjustRotation(0.0f, -0.001f, 0);
-	}
-}
+//void HandleKeyboardInput(float dt)
+//{
+//	//
+//	// Control the camera.
+//	//
+//	//XMFLOAT3 cameraPos = _camera->GetPosition();
+//	const float cameraSpeed = 0.001f;
+//
+//	if (GetAsyncKeyState('W') & 0x8000)
+//	{
+//		//_camera->TranslateByAmount(0.0f, 0.0f, 0.001f);
+//		g_Camera.AdjustPosition(0.0f, 0.0f, 0.001f);
+//	}
+//
+//	if (GetAsyncKeyState('S') & 0x8000)
+//	{
+//		//g_Camera.Walk(-1.0f * dt);
+//		//g_EyePosition.z -= 1.0f;
+//		//cameraPos.z -= 0.1f * dt;
+//		//_camera->TranslateByAmount(0.0f, 0.0f, -0.001f);
+//		g_Camera.AdjustPosition(0.0f, 0.0f, -0.001f);
+//	}
+//
+//	if (GetAsyncKeyState('A') & 0x8000)
+//	{
+//		//g_Camera.Strafe(-1.0f * dt);
+//		//g_EyePosition.x -= 1.0f;
+//		//cameraPos.x -= 0.1f * dt;
+//		//_camera->TranslateByAmount(-0.001f, 0.0f, 0.0f);
+//		g_Camera.AdjustPosition(-0.001f, 0.0f, 0.0f);
+//	}
+//
+//	if (GetAsyncKeyState('D') & 0x8000)
+//	{
+//		//g_Camera.Strafe(1.0f * dt);
+//		//g_EyePosition.x += 1.0f;
+//		//cameraPos.x += 0.1f * dt;
+//		//_camera->TranslateByAmount(0.001f, 0.0f, 0.0f);
+//		g_Camera.AdjustPosition(0.001f, 0.0f, 0.0f);
+//	}
+//
+//	if (GetAsyncKeyState('E'))
+//	{
+//		g_Camera.AdjustRotation(0.0f, 0.001f, 0);
+//	}
+//
+//	if (GetAsyncKeyState('Q'))
+//	{
+//		g_Camera.AdjustRotation(0.0f, -0.001f, 0);
+//	}
+//}
 
 void OnMouseDown(WPARAM btnState, int x, int y)
 {
@@ -924,7 +674,7 @@ void OnMouseMove(WPARAM btnState, int x, int y)
 
 		//g_Camera.Pitch(dy);
 		//g_Camera.RotateY(dx);
-		g_Camera.AdjustRotation(dy, dx, 0);
+		//g_Camera.AdjustRotation(dy, dx, 0);
 	}
 
 	g_LastMousePos.x = x;

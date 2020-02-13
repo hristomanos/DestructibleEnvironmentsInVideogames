@@ -3,108 +3,47 @@
 HRESULT Graphics::Init(HWND hWnd)
 {
 	HRESULT hr;
+
+	//Initialise the direct 3D device
 	hr = InitDevice(hWnd);
 	if (FAILED(hr))
 	{
 		Release();
 		return hr;
 	}
-	return hr;
-}
-
-void Graphics::Draw()
-{
 	
 
+		// Create the constant buffer
+	D3D11_BUFFER_DESC bd = {};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(ConstantBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	hr = m_pd3dDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer);
+	if (FAILED(hr))
+		return hr;
 
-	m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+	 //Create the material constant buffer
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(MaterialPropertiesConstantBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	hr = m_pd3dDevice->CreateBuffer(&bd, nullptr, &m_pMaterialConstantBuffer);
+	if (FAILED(hr))
+		return hr;
 
-	// Clear the back buffer
-	m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, Colors::MidnightBlue);
+	// Create the light constant buffer
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(LightPropertiesConstantBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	hr = m_pd3dDevice->CreateBuffer(&bd, nullptr, &m_pLightConstantBuffer);
+	if (FAILED(hr))
+		return hr;
 
-	// Clear the depth buffer to 1.0 (max depth)
-	m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	ConstantBuffer cb1;
-	//cb1.mWorld = XMMatrixTranspose(*);
-	cb1.vOutputColor = XMFLOAT4(0, 0, 0, 0);
-	m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-	MaterialPropertiesConstantBuffer redPlasticMaterial;
-	redPlasticMaterial.Material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	redPlasticMaterial.Material.Specular = XMFLOAT4(1.0f, 0.2f, 0.2f, 1.0f);
-	redPlasticMaterial.Material.SpecularPower = 32.0f;
-	redPlasticMaterial.Material.UseTexture = true;
-	redPlasticMaterial.Material.UseBumpMap = true;
-	m_pImmediateContext->UpdateSubresource(m_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
-
-	Light light;
-	light.Enabled = static_cast<int>(true);
-	light.LightType = PointLight;
-	light.Color = XMFLOAT4(Colors::White);
-	light.SpotAngle = XMConvertToRadians(45.0f);
-	light.ConstantAttenuation = 1.0f;
-	light.LinearAttenuation = 1;
-	light.QuadraticAttenuation = 1;
-
-	// set up the light
-	XMFLOAT3 cameraPosition = m_Camera.GetPositionFloat3();
-	XMFLOAT4 LightPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1);
-	light.Position = LightPosition;
-	XMVECTOR LightDirection = XMVectorSet(-LightPosition.x, -LightPosition.y, -LightPosition.z, 0.0f);
-	LightDirection = XMVector3Normalize(LightDirection);
-	XMStoreFloat4(&light.Direction, LightDirection);
-
-	LightPropertiesConstantBuffer lightProperties;
-	lightProperties.EyePosition = LightPosition;
-	lightProperties.Lights[0] = light;
-	m_pImmediateContext->UpdateSubresource(m_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
-
-	m_pImmediateContext->PSSetConstantBuffers(1, 1, &m_pMaterialConstantBuffer);
-	m_pImmediateContext->PSSetConstantBuffers(2, 1, &m_pMaterialConstantBuffer);
-	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pMaterialConstantBuffer);
-
+	return hr;
 
 }
-
-void Graphics::Release()
-{
-	if (m_pd3dDevice)
-		m_pd3dDevice->Release();
-	if (m_pd3dDevice1)
-		m_pd3dDevice1->Release();
-	if (m_pImmediateContext)
-		m_pImmediateContext->Release();
-	if (m_pImmediateContext1)
-		m_pImmediateContext1->Release();
-	if (m_pSwapChain)
-		m_pSwapChain->Release();
-	if (m_pSwapChain1)
-		m_pSwapChain1->Release();
-	if (m_pRenderTargetView)
-		m_pRenderTargetView->Release();
-	if (m_pDepthStencil)
-		m_pDepthStencil->Release();
-	if (m_pDepthStencilView)
-		m_pDepthStencilView->Release();
-
-	if (m_pVertexBuffer)
-		m_pVertexBuffer->Release();
-	if (m_pIndexBuffer)
-		m_pIndexBuffer->Release();
-	if (m_pConstantBuffer)
-		m_pConstantBuffer->Release();
-	if (m_pMaterialConstantBuffer)
-		m_pMaterialConstantBuffer->Release();
-	if (m_pLightConstantBuffer)
-		m_pLightConstantBuffer->Release();
-	if (m_pSamplerLinear)
-		m_pSamplerLinear->Release();
-	if (m_pSamplerNormal)
-		m_pSamplerNormal->Release();
-}
-
-
 
 HRESULT Graphics::InitDevice(HWND hWnd)
 {
@@ -224,7 +163,7 @@ HRESULT Graphics::InitDevice(HWND hWnd)
 		hr = dxgiFactory->CreateSwapChain(m_pd3dDevice, &sd, &m_pSwapChain);
 	}
 
-	// Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
+	// Note this framework doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
 	dxgiFactory->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 	dxgiFactory->Release();
@@ -281,6 +220,8 @@ HRESULT Graphics::InitDevice(HWND hWnd)
 	vp.TopLeftY = 0;
 	m_pImmediateContext->RSSetViewports(1, &vp);
 
+
+
 	/*hr = InitMesh();
 	if (FAILED(hr))
 	{
@@ -298,7 +239,7 @@ HRESULT Graphics::InitDevice(HWND hWnd)
 	}*/
 
 	// Initialize the world matrix
-	g_World1 = XMMatrixIdentity();
+	//g_World1 = XMMatrixIdentity();
 
 	// Initialize the view matrix
 	/*XMVECTOR Eye = XMLoadFloat4(&g_EyePosition);
@@ -317,7 +258,104 @@ HRESULT Graphics::InitDevice(HWND hWnd)
 	//_camera = new Camera(eye, at, up, width, width, 0.01f, 200.0f);
 	//static_cast<float>(width) / static_cast<float>(height)
 
-
-
 	return S_OK;
 }
+
+
+
+void Graphics::Draw()
+{
+
+	// Clear the back buffer
+	m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, Colors::MidnightBlue);
+
+	// Clear the depth buffer to 1.0 (max depth)
+	m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	ConstantBuffer cb1;
+	//cb1.mWorld = XMMatrixTranspose(*);
+
+	cb1.vOutputColor = XMFLOAT4(0, 0, 0, 0);
+	m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+	MaterialPropertiesConstantBuffer redPlasticMaterial;
+	redPlasticMaterial.Material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	redPlasticMaterial.Material.Specular = XMFLOAT4(1.0f, 0.2f, 0.2f, 1.0f);
+	redPlasticMaterial.Material.SpecularPower = 32.0f;
+	redPlasticMaterial.Material.UseTexture = true;
+	redPlasticMaterial.Material.UseBumpMap = true;
+	m_pImmediateContext->UpdateSubresource(m_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+
+	Light light;
+	light.Enabled = static_cast<int>(true);
+	light.LightType = PointLight;
+	light.Color = XMFLOAT4(Colors::White);
+	light.SpotAngle = XMConvertToRadians(45.0f);
+	light.ConstantAttenuation = 1.0f;
+	light.LinearAttenuation = 1;
+	light.QuadraticAttenuation = 1;
+
+	// set up the light
+	//XMFLOAT3 cameraPosition = m_Camera.GetPositionFloat3();
+	XMFLOAT4 LightPosition(0.0f, 0.0f, -1.0f, 1);
+	light.Position = LightPosition;
+	XMVECTOR LightDirection = XMVectorSet(-LightPosition.x, -LightPosition.y, -LightPosition.z, 0.0f);
+	LightDirection = XMVector3Normalize(LightDirection);
+	XMStoreFloat4(&light.Direction, LightDirection);
+
+	LightPropertiesConstantBuffer lightProperties;
+	lightProperties.EyePosition = LightPosition;
+	lightProperties.Lights[0] = light;
+	m_pImmediateContext->UpdateSubresource(m_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
+
+	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pMaterialConstantBuffer);
+	m_pImmediateContext->PSSetConstantBuffers(1, 1, &m_pMaterialConstantBuffer);
+	m_pImmediateContext->PSSetConstantBuffers(2, 1, &m_pMaterialConstantBuffer);
+
+
+}
+
+void Graphics::Release()
+{
+	if (m_pd3dDevice)
+		m_pd3dDevice->Release();
+	if (m_pd3dDevice1)
+		m_pd3dDevice1->Release();
+	if (m_pImmediateContext)
+		m_pImmediateContext->Release();
+	if (m_pImmediateContext1)
+		m_pImmediateContext1->Release();
+
+	if (m_pSwapChain)
+		m_pSwapChain->Release();
+	if (m_pSwapChain1)
+		m_pSwapChain1->Release();
+
+	if (m_pRenderTargetView)
+		m_pRenderTargetView->Release();
+
+	if (m_pDepthStencil)
+		m_pDepthStencil->Release();
+	if (m_pDepthStencilView)
+		m_pDepthStencilView->Release();
+
+	if (m_pVertexBuffer)
+		m_pVertexBuffer->Release();
+	if (m_pIndexBuffer)
+		m_pIndexBuffer->Release();
+
+	if (m_pConstantBuffer)
+		m_pConstantBuffer->Release();
+	if (m_pMaterialConstantBuffer)
+		m_pMaterialConstantBuffer->Release();
+	if (m_pLightConstantBuffer)
+		m_pLightConstantBuffer->Release();
+
+	if (m_pSamplerLinear)
+		m_pSamplerLinear->Release();
+	if (m_pSamplerNormal)
+		m_pSamplerNormal->Release();
+}
+
+
+

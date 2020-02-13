@@ -9,6 +9,10 @@ DirectInput::DirectInput()
 
 DirectInput::~DirectInput()
 {
+	if (DIMouse)
+		DIMouse->Release();
+	if (DIKeyboard)
+		DIKeyboard->Release();
 }
 
 bool DirectInput::InitDirectInput(HINSTANCE hInstance,HWND hWnd)

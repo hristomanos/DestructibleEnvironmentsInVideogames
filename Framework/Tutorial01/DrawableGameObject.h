@@ -9,6 +9,8 @@
 #include <iostream>
 #include "structures.h"
 
+#include "Utilities/Helper.h"
+
 using namespace DirectX;
 
 struct SimpleVertex
@@ -41,18 +43,23 @@ public:
 private:
 	XMMATRIX m_World;
 
-	ID3D11Buffer *m_pVertexBuffer;
-	ID3D11Buffer *m_pIndexBuffer;
-	ID3D11ShaderResourceView *m_pTextureResourceView;
-	ID3D11SamplerState *m_pSamplerLinear;
+	ID3D11InputLayout* m_pVertexLayout = nullptr;
+	ID3D11Buffer *m_pVertexBuffer = nullptr;
+	ID3D11Buffer *m_pIndexBuffer = nullptr;
+	ID3D11ShaderResourceView *m_pTextureResourceView = nullptr;
+	ID3D11SamplerState *m_pSamplerLinear = nullptr;
 	MaterialPropertiesConstantBuffer m_material;
 	XMFLOAT3 m_position;
+
 
 	void CalculateModelVectors(SimpleVertex *vertices, int vertexCount);
 	void CalculateTangentBinormal2(SimpleVertex v0, SimpleVertex v1, SimpleVertex v2, XMFLOAT3 &normal, XMFLOAT3 &tangent, XMFLOAT3 &binormal);
 
-	ID3D11VertexShader* g_pVertexShader = nullptr;
 
-	ID3D11PixelShader* g_pPixelShader = nullptr;
-	ID3D11ShaderResourceView* g_pTextureArr[3]{ nullptr, nullptr };
+	ID3D11VertexShader* m_pVertexShader = nullptr;
+    ID3D11PixelShader* m_pPixelShader = nullptr;
+
+	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;
+
+	ID3D11ShaderResourceView* g_pTextureArr[2]{ nullptr, nullptr };
 };

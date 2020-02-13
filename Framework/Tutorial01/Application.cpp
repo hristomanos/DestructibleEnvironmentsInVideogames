@@ -9,7 +9,9 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 	if (FAILED(hr))
 		return hr;
 
+
 	// Initialize core graphics
+	m_pGraphics = new Graphics();
 	hr = m_pGraphics->Init(m_hWnd);
 	if (FAILED(hr))
 		return hr;
@@ -18,40 +20,59 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 	GetClientRect(m_hWnd, &rc);
 	m_windowWidth = rc.right - rc.left;
 	m_windowHeight = rc.bottom - rc.top;
-	
+
+	//Initialise direct input
+	//m_pDirectInput = new DirectInput();
+	//if (!m_pDirectInput->InitDirectInput(hInstance, m_hWnd))
+	//{
+	//	MessageBox(0, L"Direct Input Initialization - Failed",
+	//		L"Error", MB_OK);
+	//	return 0;
+	//}
+
+	m_Camera.SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera.SetProjectionValues(90.0f, static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight), 0.01f, 1000.0f);
+
+	//Initialise object
+	m_pGameObject = new DrawableGameObject();
 	hr = m_pGameObject->Init(m_pGraphics->Getd3dDevice(), m_pGraphics->GetImmediateContext());
 	if (FAILED(hr))
 		return hr;
 
-	//Initialise camera
-	m_Camera.SetPosition(0.0f, 0.0f, -2.0f);
-	m_Camera.SetProjectionValues(90.0f, static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight), 0.01f, 1000.0f);
 
-	//Initialise objects
+
+	//Initialise camera
+
 	//Initialise mgui
+
+	return S_OK;
 }
 
 void Application::Draw()
 {
 	m_pGraphics->Draw();
 
-	//Set the render buffer back to the back buffer
+	//Draw Camera
+
 	
 
 	ConstantBuffer cb1;
 	//cb1.mWorld = XMMatrixTranspose(*mGO);
+	cb1.mWorld = XMMatrixIdentity();
 	cb1.mView = XMMatrixTranspose(m_Camera.GetViewMatrix());			 
 	cb1.mProjection = XMMatrixTranspose(m_Camera.GetProjectionMatrix()); 
 	m_pGraphics->GetImmediateContext()->UpdateSubresource(m_pGraphics->GetConstantBuffer(), 0, nullptr, &cb1, 0, 0);
 
 
 	//gameobject->Draw
-	m_pGameObject->Draw(m_pGraphics->GetImmediateContext());
+	//m_pGameObject->Draw(m_pGraphics->GetImmediateContext());
 	m_pGraphics->GetSwapChain()->Present(1, 0);
 }
 
 void Application::Update(float deltaTime)
 {
+	//m_pDirectInput->DetectInput(deltaTime);
+
 	// Update our time
 
 		//static float t = 0.0f;
@@ -71,9 +92,10 @@ void Application::Update(float deltaTime)
 	//HandleKeyboardInput(t);
 
 	//Object Update
-	m_pGameObject->Update(deltaTime);
+	//m_pGameObject->Update(deltaTime);
 
 	//Camera Input handling
+	
 	//m_pCamera->Update(deltaTime);
 	//m_pCamera->HandleInput();
 
@@ -85,14 +107,21 @@ void Application::Update(float deltaTime)
 
 void Application::Release()
 {
-	m_pGraphics->Release();
-	
+	if (m_pGraphics)
+		m_pGraphics->Release();
+
+	//if (m_pGameObject)
+	//	m_pGameObject->~DrawableGameObject();
+
+	//if (m_pDirectInput)
+	//	m_pDirectInput->~DirectInput();
 
 }
 
 
 HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
+
 	// Register class
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -105,7 +134,7 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = nullptr;
-	wcex.lpszClassName = L"TutorialWindowClass";
+	wcex.lpszClassName = L"FrameworkWindowClass";
 	wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_TUTORIAL1);
 	if (!RegisterClassEx(&wcex))
 		return E_FAIL;
@@ -114,14 +143,20 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 	m_hInst = hInstance;
 	RECT rc = { 0, 0, 1280, 720 };
 
-	//g_LastMousePos.x = 0;
-	//g_LastMousePos.y = 0;
 
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-	m_hWnd = CreateWindow(L"TutorialWindowClass", L"Direct3D 11 Tutorial 5",
-		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-		CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-		nullptr);
+	m_hWnd = CreateWindow(L"FrameworkWindowClass", 
+						  L"Direct3D 11 Framework",
+						  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+						  CW_USEDEFAULT, 
+						  CW_USEDEFAULT, 
+						  rc.right - rc.left, 
+						  rc.bottom - rc.top, 
+						  nullptr, 
+						  nullptr, 
+						  hInstance,
+						  nullptr);
+
 	if (!m_hWnd)
 		return E_FAIL;
 

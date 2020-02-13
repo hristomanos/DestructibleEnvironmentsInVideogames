@@ -2,7 +2,7 @@
 
 Camera2::Camera2()
 {
-	this->pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	this->pos = XMFLOAT3(0.0f, 0.0f, -10.0f);
 	this->posVector = XMLoadFloat3(&this->pos);
 	this->rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	this->rotVector = XMLoadFloat3(&this->rot);
@@ -136,12 +136,12 @@ void Camera2::UpdateViewMatrix() //Updates view matrix and also updates the move
 	//Calculate up direction based on current rotation
 	XMVECTOR upDir = XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, camRotationMatrix);
 	//Rebuild view matrix
-	this->viewMatrix = XMMatrixLookAtLH(this->posVector, camTarget, upDir);
+	this->viewMatrix = XMMatrixLookAtLH(this->posVector, DEFAULT_FORWARD_VECTOR, DEFAULT_UP_VECTOR);
 
-	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, this->rot.y, 0.0f);
+	//XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, this->rot.y, 0.0f);
 
-	this->vec_forward = XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	this->vec_backward = XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
-	this->vec_left = XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrix);
-	this->vec_right = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
+	//this->vec_forward = XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	//this->vec_backward = XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
+	//this->vec_left = XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrix);
+	//this->vec_right = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
 }

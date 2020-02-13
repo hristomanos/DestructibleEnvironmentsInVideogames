@@ -355,8 +355,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Camera2.h" />
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="DirectInput.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Utilities\Helper.h" />
@@ -367,8 +369,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera2.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="DirectInput.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Utilities\Helper.cpp" />

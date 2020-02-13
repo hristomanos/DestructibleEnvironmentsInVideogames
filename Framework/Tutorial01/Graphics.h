@@ -67,20 +67,9 @@ public:
 
 
 
-	XMMATRIX g_World1;
-	XMMATRIX g_View;
-	XMMATRIX g_Projection;
-
-	XMFLOAT4 g_EyePosition = XMFLOAT4(0.0f, 2.0f, -5, 1.0f);
-
-	Camera2 m_Camera;
-
-	DrawableGameObject* m_pDrawableGameObject;
-
-
 private:
-	D3D_DRIVER_TYPE m_driverType;
-	D3D_FEATURE_LEVEL m_featureLevel;
+	D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_NULL;
+	D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
 	ID3D11Device *m_pd3dDevice = nullptr;
 	ID3D11Device1 *m_pd3dDevice1 = nullptr;

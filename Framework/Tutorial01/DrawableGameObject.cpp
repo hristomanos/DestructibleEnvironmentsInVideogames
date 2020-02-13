@@ -1,5 +1,6 @@
 #include "DrawableGameObject.h"
 
+
 using namespace std;
 using namespace DirectX;
 
@@ -7,17 +8,17 @@ using namespace DirectX;
 
 DrawableGameObject::DrawableGameObject()
 {
-	m_pVertexBuffer = nullptr;
-	m_pIndexBuffer = nullptr;
-	m_pTextureResourceView = nullptr;
-	m_pSamplerLinear = nullptr;
-
+	
 	// Initialize the world matrix
 	m_World = XMMatrixIdentity();
 }
 
 DrawableGameObject::~DrawableGameObject()
 {
+	
+	if (m_pVertexLayout)
+		m_pVertexLayout->Release();
+
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
 
@@ -29,6 +30,19 @@ DrawableGameObject::~DrawableGameObject()
 
 	if (m_pSamplerLinear)
 		m_pSamplerLinear->Release();
+
+	if (m_pVertexShader)
+			m_pVertexShader->Release();
+
+	if (m_pPixelShader)
+			m_pPixelShader->Release();
+
+	if (m_pPixelShaderSolid)
+			m_pPixelShaderSolid->Release();
+
+
+
+
 }
 
 HRESULT DrawableGameObject::Init(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
@@ -48,6 +62,77 @@ HRESULT DrawableGameObject::Init(ID3D11Device *pd3dDevice, ID3D11DeviceContext *
 
 HRESULT DrawableGameObject::initMesh(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
+	// Compile the vertex shader
+	ID3DBlob *pVSBlob = nullptr;
+	HRESULT hr = Helper::CompileShaderFromFile(L"shader.fx", "VS", "vs_4_0", &pVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+				   L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return hr;
+	}
+
+	// Create the vertex shader
+	hr = pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &m_pVertexShader);
+	if (FAILED(hr))
+	{
+		pVSBlob->Release();
+		return hr;
+	}
+
+	// Define the input layout
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+		{
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		};
+	UINT numElements = ARRAYSIZE(layout);
+
+	// Create the input layout
+	hr = pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
+										 pVSBlob->GetBufferSize(), &m_pVertexLayout);
+	pVSBlob->Release();
+	if (FAILED(hr))
+		return hr;
+
+	// Set the input layout
+	pContext->IASetInputLayout(m_pVertexLayout);
+
+	// Compile the pixel shader
+	ID3DBlob *pPSBlob = nullptr;
+	hr = Helper::CompileShaderFromFile(L"shader.fx", "PS", "ps_4_0", &pPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+				   L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return hr;
+	}
+
+	// Create the pixel shader
+	hr = pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShader);
+	pPSBlob->Release();
+	if (FAILED(hr))
+		return hr;
+
+	// Compile the SOLID pixel shader
+	pPSBlob = nullptr;
+	hr = Helper:: CompileShaderFromFile(L"shader.fx", "PSSolid", "ps_4_0", &pPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+				   L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return hr;
+	}
+
+	// Create the SOLID pixel shader
+	hr = pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &m_pPixelShaderSolid);
+	pPSBlob->Release();
+	if (FAILED(hr))
+		return hr;
+
 	// Create vertex buffer
 	SimpleVertex vertices[] =
 		{
@@ -92,7 +177,7 @@ HRESULT DrawableGameObject::initMesh(ID3D11Device *pd3dDevice, ID3D11DeviceConte
 
 	D3D11_SUBRESOURCE_DATA InitData = {};
 	InitData.pSysMem = vertices;
-	HRESULT hr = pd3dDevice->CreateBuffer(&bd, &InitData, &m_pVertexBuffer);
+	 hr = pd3dDevice->CreateBuffer(&bd, &InitData, &m_pVertexBuffer);
 	if (FAILED(hr))
 		return hr;
 
@@ -138,9 +223,15 @@ HRESULT DrawableGameObject::initMesh(ID3D11Device *pd3dDevice, ID3D11DeviceConte
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// load and setup textures
-	hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\conenormal.dds", nullptr, &m_pTextureResourceView);
+	/*hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\conenormal.dds", nullptr, &m_pTextureResourceView);
+	if (FAILED(hr))
+		return hr;*/
+
+	hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\color.dds", nullptr, &g_pTextureArr[0]);
+	hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\normals.dds", nullptr, &g_pTextureArr[1]);
 	if (FAILED(hr))
 		return hr;
+
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -152,6 +243,8 @@ HRESULT DrawableGameObject::initMesh(ID3D11Device *pd3dDevice, ID3D11DeviceConte
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	hr = pd3dDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
+
+
 
 	m_material.Material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_material.Material.Specular = XMFLOAT4(1.0f, 0.2f, 0.2f, 1.0f);
@@ -179,8 +272,8 @@ void DrawableGameObject::Update(float t)
 
 void DrawableGameObject::Draw(ID3D11DeviceContext *pContext)
 {
-	pContext->VSSetShader(g_pVertexShader, nullptr, 0);
-	pContext->PSSetShader(g_pPixelShader, nullptr, 0);
+	pContext->VSSetShader(m_pVertexShader, nullptr, 0);
+	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
 	pContext->PSSetShaderResources(0, 2, g_pTextureArr);
 	pContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 	pContext->DrawIndexed(NUM_VERTICES, 0, 0);

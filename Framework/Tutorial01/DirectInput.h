@@ -11,8 +11,8 @@ public:
 	~DirectInput();
 
 	//COM interface. Represent a physical object to get our input.
-	IDirectInputDevice8* DIKeyboard;
-	IDirectInputDevice8* DIMouse;
+	IDirectInputDevice8* DIKeyboard = nullptr;
+	IDirectInputDevice8* DIMouse = nullptr;
 
 	//Hold the last state of the mouse
 	DIMOUSESTATE mouseLastState;
