@@ -1,1 +1,22 @@
-﻿  Tutorial01_2017.vcxproj -> G:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Debug\Tutorial01.exe
+﻿  Application.cpp
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Application.h(20,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Graphics.h(11): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Application.cpp(39,55): warning C4316: 'Camera': object allocated on the heap may not be aligned 16
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Application.cpp(55,42): warning C4316: 'DrawableGameObject': object allocated on the heap may not be aligned 16
+  main.cpp
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Application.h(20,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Graphics.h(11): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(84,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\Application.h(20): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(474,7): warning C4189: 'xPos': local variable is initialized but not referenced
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(475,7): warning C4189: 'yPos': local variable is initialized but not referenced
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(654,25): warning C4100: 'btnState': unreferenced formal parameter
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(662,44): warning C4100: 'y': unreferenced formal parameter
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(662,37): warning C4100: 'x': unreferenced formal parameter
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(662,23): warning C4100: 'btnState': unreferenced formal parameter
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(673,9): warning C4189: 'dy': local variable is initialized but not referenced
+F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Tutorial01\main.cpp(672,9): warning C4189: 'dx': local variable is initialized but not referenced
+  Generating Code...
+  Tutorial01_2017.vcxproj -> F:\Uni\Advanced Graphics and Real-Time Rendering\Advanced Graphics Framework\Debug\Tutorial01.exe

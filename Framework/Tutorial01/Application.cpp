@@ -1,5 +1,6 @@
 #include "Application.h"
 
+	DirectX::XMFLOAT4 g_EyePosition(0.0f, 2.0f, -5, 1.0f);
 HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	HRESULT hr;
@@ -21,17 +22,34 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 	m_windowWidth = rc.right - rc.left;
 	m_windowHeight = rc.bottom - rc.top;
 
-	//Initialise direct input
-	//m_pDirectInput = new DirectInput();
-	//if (!m_pDirectInput->InitDirectInput(hInstance, m_hWnd))
-	//{
-	//	MessageBox(0, L"Direct Input Initialization - Failed",
-	//		L"Error", MB_OK);
-	//	return 0;
-	//}
 
-	m_Camera.SetPosition(0.0f, 0.0f, -10.0f);
-	m_Camera.SetProjectionValues(90.0f, static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight), 0.01f, 1000.0f);
+	//	// Initialize the world matrix
+	g_World1 = XMMatrixIdentity();
+
+	// Initialize the view matrix
+	XMVECTOR Eye = XMLoadFloat4(&g_EyePosition);
+	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	g_View = XMMatrixLookAtLH(Eye, At, Up);
+
+	// Initialize the projection matrix
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, m_windowWidth / (FLOAT)m_windowHeight, 0.01f, 100.0f);
+
+
+	m_pCamera = new Camera(m_windowWidth, m_windowHeight);
+
+	//Initialise direct input
+	m_pDirectInput = new DirectInput();
+	if (!m_pDirectInput->InitDirectInput(hInstance, m_hWnd))
+	{
+		MessageBox(0, L"Direct Input Initialization - Failed",
+			L"Error", MB_OK);
+		return 0;
+	}
+
+	//Initialise camera
+	m_Camera2.SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera2.SetProjectionValues(90.0f, static_cast<float>(m_windowWidth) / static_cast<float>(m_windowHeight), 0.01f, 1000.0f);
 
 	//Initialise object
 	m_pGameObject = new DrawableGameObject();
@@ -41,41 +59,19 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 
 
 
-	//Initialise camera
 
 	//Initialise mgui
 
 	return S_OK;
 }
 
-void Application::Draw()
-{
-	m_pGraphics->Draw();
-
-	//Draw Camera
-
-	
-
-	ConstantBuffer cb1;
-	//cb1.mWorld = XMMatrixTranspose(*mGO);
-	cb1.mWorld = XMMatrixIdentity();
-	cb1.mView = XMMatrixTranspose(m_Camera.GetViewMatrix());			 
-	cb1.mProjection = XMMatrixTranspose(m_Camera.GetProjectionMatrix()); 
-	m_pGraphics->GetImmediateContext()->UpdateSubresource(m_pGraphics->GetConstantBuffer(), 0, nullptr, &cb1, 0, 0);
-
-
-	//gameobject->Draw
-	//m_pGameObject->Draw(m_pGraphics->GetImmediateContext());
-	m_pGraphics->GetSwapChain()->Present(1, 0);
-}
-
 void Application::Update(float deltaTime)
 {
-	//m_pDirectInput->DetectInput(deltaTime);
+	m_pDirectInput->DetectInput(deltaTime,m_pCamera, m_hWnd);
 
 	// Update our time
 
-		//static float t = 0.0f;
+	//static float t = 0.0f;
 	//if (m_driverType == D3D_DRIVER_TYPE_REFERENCE)
 	//{
 	//	t += (float)XM_PI * 0.0125f;
@@ -89,14 +85,17 @@ void Application::Update(float deltaTime)
 	//	t = (timeCur - timeStart) / 1000.0f;
 	//}
 
+	
+
+
 	//HandleKeyboardInput(t);
 
 	//Object Update
-	//m_pGameObject->Update(deltaTime);
+	m_pGameObject->Update(deltaTime);
 
 	//Camera Input handling
 	
-	//m_pCamera->Update(deltaTime);
+	//m_Camera->Update(deltaTime);
 	//m_pCamera->HandleInput();
 
 	if (GetAsyncKeyState(VK_ESCAPE))
@@ -105,16 +104,39 @@ void Application::Update(float deltaTime)
 	}
 }
 
+void Application::Draw()
+{
+	m_pGraphics->Draw();
+
+	//Draw Camera
+
+	//Clear our back buffer to the updated color
+	//float bgColor[4] = { m_Red,m_Green,m_Blue };
+	//m_pGraphics->GetImmediateContext()->ClearRenderTargetView(m_pGraphics->GetRenderTargetView(), bgColor);
+
+	XMMATRIX *mGO = m_pGameObject->getTransform();
+	
+	ConstantBuffer cb1;
+	cb1.mWorld = XMMatrixTranspose(*mGO);
+	cb1.mView = XMMatrixTranspose(m_pCamera->camView); //(m_Camera.GetViewMatrix()); g_View
+	cb1.mProjection = XMMatrixTranspose(m_pCamera->camProjection); //g_Projection
+	m_pGraphics->GetImmediateContext()->UpdateSubresource(m_pGraphics->GetConstantBuffer(), 0, nullptr, &cb1, 0, 0);
+
+
+	m_pGameObject->Draw(m_pGraphics->GetImmediateContext());
+	m_pGraphics->GetSwapChain()->Present(0, 0);
+}
+
 void Application::Release()
 {
 	if (m_pGraphics)
 		m_pGraphics->Release();
 
-	//if (m_pGameObject)
-	//	m_pGameObject->~DrawableGameObject();
+	if (m_pGameObject)
+			m_pGameObject->Release();
 
-	//if (m_pDirectInput)
-	//	m_pDirectInput->~DirectInput();
+	if (m_pDirectInput)
+		m_pDirectInput->~DirectInput();
 
 }
 

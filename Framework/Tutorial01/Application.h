@@ -7,13 +7,16 @@
 
 #include "DDSTextureLoader.h"
 #include "Camera2.h"
+#include "Camera.h"
 #include "DirectXColors.h"
 #include "DrawableGameObject.h"
 #include "Graphics.h"
 #include "resource.h"
 #include "structures.h"
 #include "Utilities/Helper.h"
+
 #include "DirectInput.h"
+
 #define DEFAULT_WINDOW_TITLE L"Framework";
 #define DEFAULT_WINDOW_CLASS L"FrameworkClass"
 
@@ -23,7 +26,7 @@
 class Application
 {
 public:
-	Application(wstring title, UINT width, UINT height) : m_windowTitle(title.c_str()), m_windowClass((title + L"Class").c_str()), m_windowWidth(width), m_windowHeight(height) { m_pGraphics = nullptr; };
+	Application(wstring title, UINT width, UINT height) : m_windowTitle(title.c_str()), m_windowClass((title + L"Class").c_str()), m_windowWidth(width), m_windowHeight(height) {  };
 	~Application() { Release(); };
 
 	HRESULT Init(HINSTANCE hInstance, int nCmdShow);
@@ -32,6 +35,7 @@ public:
 	void Update(float deltaTime);
 	void Release();
 
+	Camera* m_pCamera = nullptr;
 
 private:
 
@@ -46,7 +50,7 @@ private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 
 	//Camera2* m_pCamera = nullptr;
-	Camera2 m_Camera;
+	Camera2 m_Camera2;
 
 	// Graphics
 	Graphics* m_pGraphics = nullptr;
@@ -55,7 +59,11 @@ private:
 	DrawableGameObject* m_pGameObject = nullptr;
 
 	//DirectInput
-	//DirectInput* m_pDirectInput = nullptr;
+	DirectInput* m_pDirectInput = nullptr;
+
+	XMMATRIX g_World1;
+	XMMATRIX g_View;
+	XMMATRIX g_Projection;
 
 
 };

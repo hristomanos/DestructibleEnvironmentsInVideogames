@@ -26,12 +26,13 @@ class DrawableGameObject
 {
 public:
 	DrawableGameObject();
-	~DrawableGameObject();
+	~DrawableGameObject() { Release(); };
 
 	HRESULT Init(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 	HRESULT initMesh(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext);
 	void Update(float t);
 	void Draw(ID3D11DeviceContext *pContext);
+	void Release();
 	ID3D11Buffer *getVertexBuffer() { return m_pVertexBuffer; }
 	ID3D11Buffer *getIndexBuffer() { return m_pIndexBuffer; }
 	ID3D11ShaderResourceView **getTextureResourceView() { return &m_pTextureResourceView; }

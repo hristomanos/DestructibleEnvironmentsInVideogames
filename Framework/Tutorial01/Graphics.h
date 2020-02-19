@@ -34,8 +34,7 @@ public:
 	ID3D11Texture2D* GetDepthStencil() { return m_pDepthStencil; };
 	ID3D11DepthStencilView* GetDepthStencilView() { return m_pDepthStencilView; };
 
-	ID3D11Buffer* GetVertexBuffer() { return m_pVertexBuffer; };
-	ID3D11Buffer* GetIndexBuffer() { return m_pIndexBuffer; };
+	
 	ID3D11Buffer* GetConstantBuffer() { return m_pConstantBuffer; };
 	ID3D11Buffer* GetMaterialConstantBuffer() { return m_pMaterialConstantBuffer; };
 	ID3D11Buffer* GetLightConstantBuffer() { return m_pLightConstantBuffer; };
@@ -53,8 +52,7 @@ public:
 	void SetDepthStencil(ID3D11Texture2D *pDepthStencil) { m_pDepthStencil = pDepthStencil; };
 	void SetDepthStencilView(ID3D11DepthStencilView *pDepthStencilView) { m_pDepthStencilView = pDepthStencilView; };
 
-	void SetVertexBuffer(ID3D11Buffer *pVertexBuffer) { m_pVertexBuffer = pVertexBuffer; };
-	void SetIndexBuffer(ID3D11Buffer *pIndexBuffer) { m_pIndexBuffer = pIndexBuffer; };
+
 	void SetConstantBuffer(ID3D11Buffer *pConstantBuffer) { m_pConstantBuffer = pConstantBuffer; };
 	void SetMaterialConstantBuffer(ID3D11Buffer *pMaterialConstantBuffer) { m_pMaterialConstantBuffer = pMaterialConstantBuffer; };
 	void SetLightConstantBuffer(ID3D11Buffer *pLightConstantBuffer) { m_pLightConstantBuffer = pLightConstantBuffer; };
@@ -81,10 +79,10 @@ private:
 	ID3D11Texture2D *m_pDepthStencil = nullptr;
 	ID3D11DepthStencilView *m_pDepthStencilView = nullptr;
 
-	ID3D11Buffer *m_pVertexBuffer = nullptr;
-	ID3D11Buffer *m_pIndexBuffer = nullptr;
+
 	ID3D11Buffer *m_pConstantBuffer = nullptr;
 	ID3D11Buffer *m_pMaterialConstantBuffer = nullptr;
+
 	ID3D11Buffer *m_pLightConstantBuffer = nullptr;
 
 	ID3D11SamplerState *m_pSamplerLinear = nullptr;

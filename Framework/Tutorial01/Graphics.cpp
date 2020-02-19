@@ -8,6 +8,7 @@ HRESULT Graphics::Init(HWND hWnd)
 	hr = InitDevice(hWnd);
 	if (FAILED(hr))
 	{
+		MessageBox(NULL, L"Failed to init device", L"Error", MB_OK);
 		Release();
 		return hr;
 	}
@@ -311,50 +312,35 @@ void Graphics::Draw()
 	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pMaterialConstantBuffer);
 	m_pImmediateContext->PSSetConstantBuffers(1, 1, &m_pMaterialConstantBuffer);
 	m_pImmediateContext->PSSetConstantBuffers(2, 1, &m_pMaterialConstantBuffer);
+	m_pImmediateContext->PSSetConstantBuffers(2, 1, &m_pLightConstantBuffer);
 
+	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
 }
 
 void Graphics::Release()
 {
-	if (m_pd3dDevice)
-		m_pd3dDevice->Release();
-	if (m_pd3dDevice1)
-		m_pd3dDevice1->Release();
-	if (m_pImmediateContext)
-		m_pImmediateContext->Release();
-	if (m_pImmediateContext1)
-		m_pImmediateContext1->Release();
 
-	if (m_pSwapChain)
-		m_pSwapChain->Release();
-	if (m_pSwapChain1)
-		m_pSwapChain1->Release();
+	if (m_pImmediateContext) m_pImmediateContext->ClearState();	
+	if (m_pConstantBuffer)	m_pConstantBuffer->Release();
+	if (m_pDepthStencil) m_pDepthStencil->Release();
+	if (m_pDepthStencilView) m_pDepthStencilView->Release();
+	if (m_pRenderTargetView) m_pRenderTargetView->Release();
+	if (m_pSwapChain1) m_pSwapChain1->Release();
+	if (m_pSwapChain) m_pSwapChain->Release();
+	if (m_pImmediateContext1) m_pImmediateContext1->Release();
+	if (m_pImmediateContext) m_pImmediateContext->Release();
+	if (m_pd3dDevice) m_pd3dDevice->Release();
+	if (m_pd3dDevice1) m_pd3dDevice1->Release();
 
-	if (m_pRenderTargetView)
-		m_pRenderTargetView->Release();
 
-	if (m_pDepthStencil)
-		m_pDepthStencil->Release();
-	if (m_pDepthStencilView)
-		m_pDepthStencilView->Release();
+	/*if (m_pSamplerLinear) m_pSamplerLinear->Release();*/
+	//if (m_pMaterialConstantBuffer)
+	//	m_pMaterialConstantBuffer->Release();
+	//if (m_pLightConstantBuffer)
+	//	m_pLightConstantBuffer->Release();
+	//if (m_pSamplerNormal) m_pSamplerNormal->Release();
 
-	if (m_pVertexBuffer)
-		m_pVertexBuffer->Release();
-	if (m_pIndexBuffer)
-		m_pIndexBuffer->Release();
-
-	if (m_pConstantBuffer)
-		m_pConstantBuffer->Release();
-	if (m_pMaterialConstantBuffer)
-		m_pMaterialConstantBuffer->Release();
-	if (m_pLightConstantBuffer)
-		m_pLightConstantBuffer->Release();
-
-	if (m_pSamplerLinear)
-		m_pSamplerLinear->Release();
-	if (m_pSamplerNormal)
-		m_pSamplerNormal->Release();
 }
 
 

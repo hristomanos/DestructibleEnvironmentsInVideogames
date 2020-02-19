@@ -2,7 +2,7 @@
 #pragma comment (lib,"dinput8.lib")
 #pragma comment (lib,"dxguid.lib")
 #include <dinput.h>
-
+#include"Camera.h"
 
 class DirectInput
 {
@@ -11,8 +11,8 @@ public:
 	~DirectInput();
 
 	//COM interface. Represent a physical object to get our input.
-	IDirectInputDevice8* DIKeyboard = nullptr;
-	IDirectInputDevice8* DIMouse = nullptr;
+	IDirectInputDevice8* DIKeyboard;
+	IDirectInputDevice8* DIMouse;
 
 	//Hold the last state of the mouse
 	DIMOUSESTATE mouseLastState;
@@ -20,9 +20,8 @@ public:
 	LPDIRECTINPUT8 DirectInputObject;
 
 	bool InitDirectInput(HINSTANCE hInstance,HWND hWnd);
-	void DetectInput(double time);
-
-
+	void DetectInput(double time,Camera* camera, HWND hWnd);
+;
 
 };
 

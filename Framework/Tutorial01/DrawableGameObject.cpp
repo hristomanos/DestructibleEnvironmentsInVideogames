@@ -8,22 +8,25 @@ using namespace DirectX;
 
 DrawableGameObject::DrawableGameObject()
 {
-	
 	// Initialize the world matrix
 	m_World = XMMatrixIdentity();
 }
 
-DrawableGameObject::~DrawableGameObject()
+void DrawableGameObject::Release() 
 {
-	
-	if (m_pVertexLayout)
-		m_pVertexLayout->Release();
-
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
 
 	if (m_pIndexBuffer)
 		m_pIndexBuffer->Release();
+
+	if (m_pVertexLayout)
+		m_pVertexLayout->Release();
+
+	if (m_pVertexShader)
+		m_pVertexShader->Release();
+	if (m_pPixelShader)
+		m_pPixelShader->Release();
 
 	if (m_pTextureResourceView)
 		m_pTextureResourceView->Release();
@@ -31,22 +34,14 @@ DrawableGameObject::~DrawableGameObject()
 	if (m_pSamplerLinear)
 		m_pSamplerLinear->Release();
 
-	if (m_pVertexShader)
-			m_pVertexShader->Release();
-
-	if (m_pPixelShader)
-			m_pPixelShader->Release();
-
 	if (m_pPixelShaderSolid)
-			m_pPixelShaderSolid->Release();
-
-
-
-
+		m_pPixelShaderSolid->Release();
 }
+
 
 HRESULT DrawableGameObject::Init(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pContext)
 {
+
 	HRESULT hr;
 
 	hr = initMesh(pd3dDevice, pContext);

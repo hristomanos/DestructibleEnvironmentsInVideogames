@@ -1,18 +1,24 @@
 #include "DirectInput.h"
-
+#include <dwrite.h>
+#include <dinput.h>
 
 
 DirectInput::DirectInput()
 {
+    
 }
 
 
 DirectInput::~DirectInput()
 {
 	if (DIMouse)
-		DIMouse->Release();
+		DIMouse->Unacquire();
 	if (DIKeyboard)
-		DIKeyboard->Release();
+		DIKeyboard->Unacquire();
+    if (DirectInputObject)
+    {
+        DirectInputObject->Release();
+    }
 }
 
 bool DirectInput::InitDirectInput(HINSTANCE hInstance,HWND hWnd)
@@ -40,32 +46,53 @@ bool DirectInput::InitDirectInput(HINSTANCE hInstance,HWND hWnd)
 
 }
 
-void DirectInput::DetectInput(double time)
+void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
 {
-	//Current mouse state variable
-	DIMOUSESTATE mouseCurrState;
+        DIMOUSESTATE mouseCurrState;
 
-	//Hold possible keyboard keys to be pressed
-	BYTE keyboardState[256];
+        BYTE keyboardState[256];
 
-	//Acquire device
-	DIKeyboard->Acquire();
+        DIKeyboard->Acquire();
+        DIMouse->Acquire();
 
-	DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
+        DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
 
-	DIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+        DIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
 
-	//if (keyboardState[DIK_ESCAPE] & 0x80)
-		//	PostMessage(hWnd,WM_DESTROY,0,0);
+        if (keyboardState[DIK_ESCAPE] & 0x80)
+            PostMessage(hwnd, WM_DESTROY, 0, 0);
 
-	if (mouseCurrState.lX != mouseLastState.lX)
-	{
+        float speed = 0.1f * time;
 
-	}
+        if (keyboardState[DIK_A] & 0x80)
+        {  
+            camera->DecreaseLeftRightSpeed(speed);
+        }
+        if (keyboardState[DIK_D] & 0x80)
+        {
+            camera->IncreaseLeftRightSpeed(speed);
+        }
+        if (keyboardState[DIK_W] & 0x80)
+        {
+            camera->IncreaseBackForwardSpeed(speed);
+        }
+        if (keyboardState[DIK_S] & 0x80)
+        {
+            camera->DecreaseBackForwardSpeed(speed);
+        }
 
+        if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+        {
+            camera->AddToCamYaw(mouseCurrState.lX * 0.001f);
 
+            camera->AddToCamPitch(mouseCurrState.lY * 0.001f);
 
-	mouseLastState = mouseCurrState;
+            mouseLastState = mouseCurrState;
+        }
+
+     camera->UpdateCamera();
+
+        return;
 
 }
 

@@ -16,7 +16,7 @@
 
 #include "main.h"
 
-DirectX::XMFLOAT4 g_EyePosition(0.0f, 2.0f, -5, 1.0f);
+//DirectX::XMFLOAT4 g_EyePosition(0.0f, 2.0f, -5, 1.0f);
 
 //--------------------------------------------------------------------------------------
 // Forward declarations
@@ -120,8 +120,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 		}
 	}
-
-	delete application;
+	application->Release();
+	//delete application;
 	application = nullptr;
 
 	return (int)msg.wParam;
