@@ -27,15 +27,15 @@ public:
 	XMMATRIX camRotationMatrix;
 	XMMATRIX  groundWorld;
 
-	void IncreaseBackForwardSpeed(float speed);
-	void DecreaseBackForwardSpeed(float speed);
-	void IncreaseLeftRightSpeed(float speed);
-	void DecreaseLeftRightSpeed(float speed);
+	void MoveForward(float speed);
+	void MoveBackward(float speed);
+	void StrafeRight(float speed);
+	void StrafeLeft(float speed);
 
 	
 
-	void AddToCamYaw(float value);
-	void AddToCamPitch(float value);
+	void RotateLeftRight(float value);
+	void RotateUpDown(float value);
 
 	//Rotation left/right. Y axis
 	float camYaw = 0.0f;

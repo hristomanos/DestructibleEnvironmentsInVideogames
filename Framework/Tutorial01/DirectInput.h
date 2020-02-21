@@ -14,14 +14,20 @@ public:
 	IDirectInputDevice8* DIKeyboard;
 	IDirectInputDevice8* DIMouse;
 
-	//Hold the last state of the mouse
+	//Holds the last state of the mouse
 	DIMOUSESTATE mouseLastState;
+
 	//Structure that gets input from keyboard
 	LPDIRECTINPUT8 DirectInputObject;
 
 	bool InitDirectInput(HINSTANCE hInstance,HWND hWnd);
 	void DetectInput(double time,Camera* camera, HWND hWnd);
-;
 
+	bool is_left_Button_Pressed(DIMOUSESTATE mouseCurrState);
+
+private:
+	bool m_bIsMouseAcquired = false;
 };
+
+
 

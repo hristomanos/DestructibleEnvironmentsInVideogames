@@ -21,32 +21,32 @@ Camera::~Camera()
 }
 
 
-void Camera::IncreaseBackForwardSpeed(float speed)
+void Camera::MoveForward(float speed)
 {
 	moveBackForward += speed;
 }
 
-void Camera::DecreaseBackForwardSpeed(float speed)
+void Camera::MoveBackward(float speed)
 {
 	moveBackForward -= speed;
 }
 
-void Camera::IncreaseLeftRightSpeed(float speed)
+void Camera::StrafeRight(float speed)
 {
 	moveLeftRight += speed;
 }
 
-void Camera::DecreaseLeftRightSpeed(float speed)
+void Camera::StrafeLeft(float speed)
 {
 	moveLeftRight -= speed;
 }
 
-void Camera::AddToCamYaw(float value)
+void Camera::RotateLeftRight(float value)
 {
 	camYaw += value;
 }
 
-void Camera::AddToCamPitch(float value)
+void Camera::RotateUpDown(float value)
 {
 	camPitch += value;
 }

@@ -5,8 +5,11 @@
 #include "Resource.h"
 #include <directxmath.h>
 #include "structures.h"
-#include "Camera2.h"
 #include "DrawableGameObject.h"
+
+#include "ImGui\\imgui.h"
+#include "ImGui\\imgui_impl_dx11.h"
+#include "ImGui\\imgui_impl_win32.h"
 
 #define DEFAULT_WINDOW_TITLE L"Framework"
 #define DEFAULT_WINDOW_CLASS L"FrameworkClass"
@@ -87,9 +90,4 @@ private:
 
 	ID3D11SamplerState *m_pSamplerLinear = nullptr;
 	ID3D11SamplerState *m_pSamplerNormal = nullptr;
-
-
-
-
-
 };

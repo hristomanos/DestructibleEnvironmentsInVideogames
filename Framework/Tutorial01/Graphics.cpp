@@ -42,6 +42,15 @@ HRESULT Graphics::Init(HWND hWnd)
 	if (FAILED(hr))
 		return hr;
 
+	//Setup ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); // get input output
+	ImGui_ImplWin32_Init(hWnd); // init win 32
+	ImGui_ImplDX11_Init(m_pd3dDevice, m_pImmediateContext); //Init directx11
+	ImGui::StyleColorsDark(); // style of gui
+
+
 	return hr;
 
 }
@@ -315,6 +324,19 @@ void Graphics::Draw()
 	m_pImmediateContext->PSSetConstantBuffers(2, 1, &m_pLightConstantBuffer);
 
 	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+
+	//Sterte the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	//Create ImGui window
+	ImGui::Begin("Text");
+	ImGui::End();
+	//Assemble together draw data
+	ImGui::Render();
+	//Render draw data
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 
 }
 

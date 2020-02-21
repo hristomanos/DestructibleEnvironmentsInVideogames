@@ -6,7 +6,6 @@
 #include <windowsx.h>
 
 #include "DDSTextureLoader.h"
-#include "Camera2.h"
 #include "Camera.h"
 #include "DirectXColors.h"
 #include "DrawableGameObject.h"
@@ -34,8 +33,7 @@ public:
 	void Draw();
 	void Update(float deltaTime);
 	void Release();
-
-	Camera* m_pCamera = nullptr;
+	
 
 private:
 
@@ -49,21 +47,19 @@ private:
 	//Initilization functions
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 
-	//Camera2* m_pCamera = nullptr;
-	Camera2 m_Camera2;
+	// Camera
+	Camera* m_pCamera = nullptr;
 
 	// Graphics
 	Graphics* m_pGraphics = nullptr;
 
-	//GameObject
+	// GameObject
 	DrawableGameObject* m_pGameObject = nullptr;
 
-	//DirectInput
+	// DirectInput
 	DirectInput* m_pDirectInput = nullptr;
 
-	XMMATRIX g_World1;
-	XMMATRIX g_View;
-	XMMATRIX g_Projection;
+	
 
 
 };

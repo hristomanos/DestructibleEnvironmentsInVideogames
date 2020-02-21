@@ -13,7 +13,6 @@
 
 #include "DrawableGameObject.h"
 #include "structures.h"
-#include "Camera2.h"
 #include <vector>
 
 

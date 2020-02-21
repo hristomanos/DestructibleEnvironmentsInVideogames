@@ -25,14 +25,10 @@ HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 //HRESULT		InitDevice();
 //HRESULT		InitMesh();
 HRESULT InitWorld(int width, int height);
-void CleanupDevice();
+//void CleanupDevice();
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-void Render();
+//void Render();
 
-void HandleKeyboardInput(float dt);
-void OnMouseDown(WPARAM btnState, int x, int y);
-void OnMouseUp(WPARAM btnState, int x, int y);
-void OnMouseMove(WPARAM btnState, int x, int y);
 
 //--------------------------------------------------------------------------------------
 // Global Variables
@@ -462,10 +458,16 @@ HRESULT CompileShaderFromFile(const WCHAR *szFileName, LPCSTR szEntryPoint, LPCS
 //--------------------------------------------------------------------------------------
 // Called every time the application receives a message
 //--------------------------------------------------------------------------------------
+
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
+
+	
+
 
 	switch (message)
 	{
@@ -473,17 +475,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		int xPos = GET_X_LPARAM(lParam);
 		int yPos = GET_Y_LPARAM(lParam);
-		//OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+
+
 		break;
 	}
 	case WM_MOUSEMOVE:
 	{
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		
 		break;
 	}
 	case WM_PAINT:
@@ -508,8 +512,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //--------------------------------------------------------------------------------------
 // Render a frame
 //--------------------------------------------------------------------------------------
-void Render()
-{
+//void Render()
+//{
 	// Update our time
 	/*static float t = 0.0f;
 	if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
@@ -597,86 +601,6 @@ void Render()
 
 	// Present our back buffer to our front buffer
 	//g_pSwapChain->Present(0, 0);
-}
-
-//void HandleKeyboardInput(float dt)
-//{
-//	//
-//	// Control the camera.
-//	//
-//	//XMFLOAT3 cameraPos = _camera->GetPosition();
-//	const float cameraSpeed = 0.001f;
-//
-//	if (GetAsyncKeyState('W') & 0x8000)
-//	{
-//		//_camera->TranslateByAmount(0.0f, 0.0f, 0.001f);
-//		g_Camera.AdjustPosition(0.0f, 0.0f, 0.001f);
-//	}
-//
-//	if (GetAsyncKeyState('S') & 0x8000)
-//	{
-//		//g_Camera.Walk(-1.0f * dt);
-//		//g_EyePosition.z -= 1.0f;
-//		//cameraPos.z -= 0.1f * dt;
-//		//_camera->TranslateByAmount(0.0f, 0.0f, -0.001f);
-//		g_Camera.AdjustPosition(0.0f, 0.0f, -0.001f);
-//	}
-//
-//	if (GetAsyncKeyState('A') & 0x8000)
-//	{
-//		//g_Camera.Strafe(-1.0f * dt);
-//		//g_EyePosition.x -= 1.0f;
-//		//cameraPos.x -= 0.1f * dt;
-//		//_camera->TranslateByAmount(-0.001f, 0.0f, 0.0f);
-//		g_Camera.AdjustPosition(-0.001f, 0.0f, 0.0f);
-//	}
-//
-//	if (GetAsyncKeyState('D') & 0x8000)
-//	{
-//		//g_Camera.Strafe(1.0f * dt);
-//		//g_EyePosition.x += 1.0f;
-//		//cameraPos.x += 0.1f * dt;
-//		//_camera->TranslateByAmount(0.001f, 0.0f, 0.0f);
-//		g_Camera.AdjustPosition(0.001f, 0.0f, 0.0f);
-//	}
-//
-//	if (GetAsyncKeyState('E'))
-//	{
-//		g_Camera.AdjustRotation(0.0f, 0.001f, 0);
-//	}
-//
-//	if (GetAsyncKeyState('Q'))
-//	{
-//		g_Camera.AdjustRotation(0.0f, -0.001f, 0);
-//	}
 //}
 
-void OnMouseDown(WPARAM btnState, int x, int y)
-{
-	g_LastMousePos.x = x;
-	g_LastMousePos.y = y;
 
-	//SetCapture(g_hWnd);
-}
-
-void OnMouseUp(WPARAM btnState, int x, int y)
-{
-	ReleaseCapture();
-}
-
-void OnMouseMove(WPARAM btnState, int x, int y)
-{
-	if ((btnState & MK_LBUTTON) != 0)
-	{
-		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - g_LastMousePos.x));
-		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - g_LastMousePos.y));
-
-		//g_Camera.Pitch(dy);
-		//g_Camera.RotateY(dx);
-		//g_Camera.AdjustRotation(dy, dx, 0);
-	}
-
-	g_LastMousePos.x = x;
-	g_LastMousePos.y = y;
-}

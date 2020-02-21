@@ -356,11 +356,18 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Camera2.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DirectInput.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ImGui\imconfig.h" />
+    <ClInclude Include="ImGui\imgui.h" />
+    <ClInclude Include="ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="ImGui\imgui_internal.h" />
+    <ClInclude Include="ImGui\imstb_rectpack.h" />
+    <ClInclude Include="ImGui\imstb_textedit.h" />
+    <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="Utilities\Helper.h" />
     <ClInclude Include="main.h" />
     <CLInclude Include="resource.h" />
@@ -370,15 +377,20 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Camera2.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DirectInput.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ImGui\imgui.cpp" />
+    <ClCompile Include="ImGui\imgui_draw.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Utilities\Helper.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="directx.ico" />
     <Image Include="Resources\stone.dds" />
   </ItemGroup>
   <ItemGroup>

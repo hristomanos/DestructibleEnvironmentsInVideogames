@@ -53,11 +53,23 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
         BYTE keyboardState[256];
 
         DIKeyboard->Acquire();
-        DIMouse->Acquire();
 
-        DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
 
         DIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+
+        if (keyboardState[DIK_O] & 0x80)
+        {
+            DIMouse->Unacquire();
+            m_bIsMouseAcquired = false;
+        }
+
+        if (keyboardState[DIK_I] & 0x80)
+        {
+            DIMouse->Acquire();
+            m_bIsMouseAcquired = true;
+        }
+
+        DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
 
         if (keyboardState[DIK_ESCAPE] & 0x80)
             PostMessage(hwnd, WM_DESTROY, 0, 0);
@@ -66,28 +78,32 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
 
         if (keyboardState[DIK_A] & 0x80)
         {  
-            camera->DecreaseLeftRightSpeed(speed);
+            camera->StrafeLeft(speed);
         }
         if (keyboardState[DIK_D] & 0x80)
         {
-            camera->IncreaseLeftRightSpeed(speed);
+            camera->StrafeRight(speed);
         }
         if (keyboardState[DIK_W] & 0x80)
         {
-            camera->IncreaseBackForwardSpeed(speed);
+            camera->MoveForward(speed);
         }
         if (keyboardState[DIK_S] & 0x80)
         {
-            camera->DecreaseBackForwardSpeed(speed);
+            camera->MoveBackward(speed);
         }
 
-        if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+        if (m_bIsMouseAcquired == true)
         {
-            camera->AddToCamYaw(mouseCurrState.lX * 0.001f);
+            if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+            {
+                camera->RotateLeftRight(mouseCurrState.lX * 0.001f);
 
-            camera->AddToCamPitch(mouseCurrState.lY * 0.001f);
+                camera->RotateUpDown(mouseCurrState.lY * 0.001f);
 
-            mouseLastState = mouseCurrState;
+                mouseLastState = mouseCurrState;
+            }
+
         }
 
      camera->UpdateCamera();
@@ -97,4 +113,12 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
 }
 
 
+bool DirectInput::is_left_Button_Pressed(DIMOUSESTATE mouseCurrState)
+{
+    if (mouseCurrState.rgbButtons[0])
+    {
+        return true;
+    }
 
+    return false;
+}
