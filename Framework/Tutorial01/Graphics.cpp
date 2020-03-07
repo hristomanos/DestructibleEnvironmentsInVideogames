@@ -13,8 +13,7 @@ HRESULT Graphics::Init(HWND hWnd)
 		return hr;
 	}
 	
-
-		// Create the constant buffer
+	// Create the constant buffer
 	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(ConstantBuffer);
@@ -41,15 +40,6 @@ HRESULT Graphics::Init(HWND hWnd)
 	hr = m_pd3dDevice->CreateBuffer(&bd, nullptr, &m_pLightConstantBuffer);
 	if (FAILED(hr))
 		return hr;
-
-	//Setup ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); // get input output
-	ImGui_ImplWin32_Init(hWnd); // init win 32
-	ImGui_ImplDX11_Init(m_pd3dDevice, m_pImmediateContext); //Init directx11
-	ImGui::StyleColorsDark(); // style of gui
-
 
 	return hr;
 
@@ -230,44 +220,6 @@ HRESULT Graphics::InitDevice(HWND hWnd)
 	vp.TopLeftY = 0;
 	m_pImmediateContext->RSSetViewports(1, &vp);
 
-
-
-	/*hr = InitMesh();
-	if (FAILED(hr))
-	{
-		MessageBox(nullptr,
-			L"Failed to initialise mesh.", L"Error", MB_OK);
-		return hr;
-	}*/
-
-	/*hr = InitWorld(width, height);
-	if (FAILED(hr))
-	{
-		MessageBox(nullptr,
-			L"Failed to initialise world.", L"Error", MB_OK);
-		return hr;
-	}*/
-
-	// Initialize the world matrix
-	//g_World1 = XMMatrixIdentity();
-
-	// Initialize the view matrix
-	/*XMVECTOR Eye = XMLoadFloat4(&g_EyePosition);
-	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	g_View = XMMatrixLookAtLH(Eye, At, Up);*/
-
-	// Initialize the projection matrix
-	//g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
-
-	// Initialize Camera lens
-	/*XMFLOAT3 eye = XMFLOAT3(0.0f, 2.0f, -5.0f);
-	XMFLOAT3 at = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);*/
-
-	//_camera = new Camera(eye, at, up, width, width, 0.01f, 200.0f);
-	//static_cast<float>(width) / static_cast<float>(height)
-
 	return S_OK;
 }
 
@@ -283,8 +235,6 @@ void Graphics::Draw()
 	m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	ConstantBuffer cb1;
-	//cb1.mWorld = XMMatrixTranspose(*);
-
 	cb1.vOutputColor = XMFLOAT4(0, 0, 0, 0);
 	m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
 
@@ -293,7 +243,7 @@ void Graphics::Draw()
 	redPlasticMaterial.Material.Specular = XMFLOAT4(1.0f, 0.2f, 0.2f, 1.0f);
 	redPlasticMaterial.Material.SpecularPower = 32.0f;
 	redPlasticMaterial.Material.UseTexture = true;
-	redPlasticMaterial.Material.UseBumpMap = true;
+	redPlasticMaterial.Material.UseBumpMap = false;
 	m_pImmediateContext->UpdateSubresource(m_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
 
 	Light light;
@@ -305,16 +255,14 @@ void Graphics::Draw()
 	light.LinearAttenuation = 1;
 	light.QuadraticAttenuation = 1;
 
-	// set up the light
-	//XMFLOAT3 cameraPosition = m_Camera.GetPositionFloat3();
-	XMFLOAT4 LightPosition(0.0f, 0.0f, -1.0f, 1);
-	light.Position = LightPosition;
-	XMVECTOR LightDirection = XMVectorSet(-LightPosition.x, -LightPosition.y, -LightPosition.z, 0.0f);
+	
+	light.Position = m_LightPosition;
+	XMVECTOR LightDirection = XMVectorSet(-m_LightPosition.x, -m_LightPosition.y, -m_LightPosition.z, 0.0f);
 	LightDirection = XMVector3Normalize(LightDirection);
 	XMStoreFloat4(&light.Direction, LightDirection);
 
 	LightPropertiesConstantBuffer lightProperties;
-	lightProperties.EyePosition = LightPosition;
+	lightProperties.EyePosition = m_LightPosition;
 	lightProperties.Lights[0] = light;
 	m_pImmediateContext->UpdateSubresource(m_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
 
@@ -325,17 +273,7 @@ void Graphics::Draw()
 
 	m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
-	//Sterte the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	//Create ImGui window
-	ImGui::Begin("Text");
-	ImGui::End();
-	//Assemble together draw data
-	ImGui::Render();
-	//Render draw data
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 
 
 }

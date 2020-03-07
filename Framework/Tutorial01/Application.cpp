@@ -33,6 +33,7 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 		return 0;
 	}
 
+	
 	//Initialise object
 	m_pGameObject = new DrawableGameObject();
 	hr = m_pGameObject->Init(m_pGraphics->Getd3dDevice(), m_pGraphics->GetImmediateContext());
@@ -40,33 +41,31 @@ HRESULT Application::Init(HINSTANCE hInstance, int nCmdShow)
 		return hr;
 
 
-	//Initialise mgui
+	//Initialise user interface
+	m_pUserInterface = new UserInterface(m_pGraphics,m_pGameObject);
+	m_pUserInterface->Init(m_hWnd,m_pGraphics->Getd3dDevice(),m_pGraphics->GetImmediateContext());
+
+	//m_CubeMesh = OBJLoader::Load((char*)"cube.obj", m_pGraphics->Getd3dDevice(),false);
+
 
 	return S_OK;
 }
 
 void Application::Update(float deltaTime)
 {
+	static float t = 0.0f;
+	static ULONGLONG timeStart = 0;
+	ULONGLONG timeCur = GetTickCount64();
+	if (timeStart == 0)
+		timeStart = timeCur;
+	t = (timeCur - timeStart) / 1000.0f;
+
 	m_pDirectInput->DetectInput(deltaTime,m_pCamera, m_hWnd);
 
-	// Update our time
 
-	//static float t = 0.0f;
-	//if (m_driverType == D3D_DRIVER_TYPE_REFERENCE)
-	//{
-	//	t += (float)XM_PI * 0.0125f;
-	//}
-	//else
-	//{
-	//	static ULONGLONG timeStart = 0;
-	//	ULONGLONG timeCur = GetTickCount64();
-	//	if (timeStart == 0)
-	//		timeStart = timeCur;
-	//	t = (timeCur - timeStart) / 1000.0f;
-	//}
 
 	//Object Update
-	m_pGameObject->Update(deltaTime);
+	m_pGameObject->Update(t);
 
 	if (GetAsyncKeyState(VK_ESCAPE))
 	{
@@ -79,16 +78,20 @@ void Application::Draw()
 	m_pGraphics->Draw();
 
 	//Draw Camera
-
 	XMMATRIX *mGO = m_pGameObject->getTransform();
 	ConstantBuffer cb1;
 	cb1.mWorld = XMMatrixTranspose(*mGO);
-	cb1.mView = XMMatrixTranspose(m_pCamera->camView);
-	cb1.mProjection = XMMatrixTranspose(m_pCamera->camProjection); 
+	cb1.mView = XMMatrixTranspose(m_pCamera->GetViewMatrix());
+	cb1.mProjection = XMMatrixTranspose(m_pCamera->GetProjectionMatrix()); 
 	m_pGraphics->GetImmediateContext()->UpdateSubresource(m_pGraphics->GetConstantBuffer(), 0, nullptr, &cb1, 0, 0);
 
-
+	//Draw cube
 	m_pGameObject->Draw(m_pGraphics->GetImmediateContext());
+
+	//Draw ImGui
+	m_pUserInterface->Render();
+
+	//Draw on screen
 	m_pGraphics->GetSwapChain()->Present(0, 0);
 }
 
@@ -102,6 +105,10 @@ void Application::Release()
 
 	if (m_pDirectInput)
 		m_pDirectInput->~DirectInput();
+
+	if (m_pUserInterface)
+			m_pUserInterface->~UserInterface();
+	
 
 }
 

@@ -4,15 +4,15 @@
 
 Camera::Camera(UINT WindowWidth,UINT WindowHeight)
 {
-	camPosition = XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f);
-	camTarget = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	camUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	m_CamPosition = XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f);
+	m_CamTarget = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	m_CamUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	//Set the View matrix
-	camView = XMMatrixLookAtLH(camPosition, camTarget, camUp);
+	m_CamView = XMMatrixLookAtLH(m_CamPosition, m_CamTarget, m_CamUp);
 
 	//Set the Projection matrix
-	camProjection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)WindowWidth / WindowHeight, 1.0f, 1000.0f);
+	m_CamProjection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)WindowWidth / WindowHeight, 0.01f, 1000.0f);
 }
 
 
@@ -23,55 +23,55 @@ Camera::~Camera()
 
 void Camera::MoveForward(float speed)
 {
-	moveBackForward += speed;
+	m_MoveBackForward += speed;
 }
 
 void Camera::MoveBackward(float speed)
 {
-	moveBackForward -= speed;
+	m_MoveBackForward -= speed;
 }
 
 void Camera::StrafeRight(float speed)
 {
-	moveLeftRight += speed;
+	m_MoveLeftRight += speed;
 }
 
 void Camera::StrafeLeft(float speed)
 {
-	moveLeftRight -= speed;
+	m_MoveLeftRight -= speed;
 }
 
 void Camera::RotateLeftRight(float value)
 {
-	camYaw += value;
+	m_CamYaw += value;
 }
 
 void Camera::RotateUpDown(float value)
 {
-	camPitch += value;
+	m_CamPitch += value;
 }
 
 void Camera::UpdateCamera()
 {
-	camRotationMatrix = XMMatrixRotationRollPitchYaw(camPitch, camYaw, 0);
-	camTarget = XMVector3TransformCoord(DefaultForward, camRotationMatrix);
-	camTarget = XMVector3Normalize(camTarget);
+	m_CamRotationMatrix = XMMatrixRotationRollPitchYaw(m_CamPitch, m_CamYaw, 0);
+	m_CamTarget = XMVector3TransformCoord(m_DefaultForward, m_CamRotationMatrix);
+	m_CamTarget = XMVector3Normalize(m_CamTarget);
 
 	XMMATRIX RotateYTemptMatrix;
-	RotateYTemptMatrix = XMMatrixRotationY(camYaw);
+	RotateYTemptMatrix = XMMatrixRotationY(m_CamYaw);
 
-	camRight = XMVector3TransformCoord(DefaultRight, camRotationMatrix);
-	camForward = XMVector3TransformCoord(DefaultForward, camRotationMatrix);
-	camUp = XMVector3Cross(camForward, camRight);
+	m_CamRight = XMVector3TransformCoord(m_DefaultRight, m_CamRotationMatrix);
+	m_CamForward = XMVector3TransformCoord(m_DefaultForward, m_CamRotationMatrix);
+	m_CamUp = XMVector3Cross(m_CamForward, m_CamRight);
 
-	camPosition += moveLeftRight * camRight;
-	camPosition += moveBackForward * camForward;
+	m_CamPosition += m_MoveLeftRight * m_CamRight;
+	m_CamPosition += m_MoveBackForward * m_CamForward;
 
-	moveLeftRight = 0.0f;
-	moveBackForward = 0.0f;
+	m_MoveLeftRight = 0.0f;
+	m_MoveBackForward = 0.0f;
 
-	camTarget = camPosition + camTarget;
+	m_CamTarget = m_CamPosition + m_CamTarget;
 
-	camView = XMMatrixLookAtLH(camPosition, camTarget, camUp);
+	m_CamView = XMMatrixLookAtLH(m_CamPosition, m_CamTarget, m_CamUp);
 
 }

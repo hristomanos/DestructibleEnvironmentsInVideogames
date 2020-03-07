@@ -11,36 +11,36 @@ DirectInput::DirectInput()
 
 DirectInput::~DirectInput()
 {
-	if (DIMouse)
-		DIMouse->Unacquire();
-	if (DIKeyboard)
-		DIKeyboard->Unacquire();
-    if (DirectInputObject)
+	if (m_pDIMouse)
+		m_pDIMouse->Unacquire();
+	if (m_pDIKeyboard)
+		m_pDIKeyboard->Unacquire();
+    if (m_DirectInputObject)
     {
-        DirectInputObject->Release();
+        m_DirectInputObject->Release();
     }
 }
 
 bool DirectInput::InitDirectInput(HINSTANCE hInstance,HWND hWnd)
 {
 	//Create direct input object
-	HRESULT hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)& DirectInputObject, NULL);
+	HRESULT hr = DirectInput8Create(hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)& m_DirectInputObject, NULL);
 
 	//Create devices for keyboard and mouse
-	hr = DirectInputObject->CreateDevice(GUID_SysKeyboard,
-		&DIKeyboard,
+	hr = m_DirectInputObject->CreateDevice(GUID_SysKeyboard,
+		&m_pDIKeyboard,
 		NULL);
 
-	hr = DirectInputObject->CreateDevice(GUID_SysMouse,
-		&DIMouse,
+	hr = m_DirectInputObject->CreateDevice(GUID_SysMouse,
+		&m_pDIMouse,
 		NULL);
 
 	//Set data format for the direct input devices
-	hr = DIKeyboard->SetDataFormat(&c_dfDIKeyboard);
-	hr = DIKeyboard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	hr = m_pDIKeyboard->SetDataFormat(&c_dfDIKeyboard);
+	hr = m_pDIKeyboard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 
-	hr = DIMouse->SetDataFormat(&c_dfDIMouse);
-	hr = DIMouse->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
+	hr = m_pDIMouse->SetDataFormat(&c_dfDIMouse);
+	hr = m_pDIMouse->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
 
 	return true;
 
@@ -52,24 +52,24 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
 
         BYTE keyboardState[256];
 
-        DIKeyboard->Acquire();
+        m_pDIKeyboard->Acquire();
 
 
-        DIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
+        m_pDIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
 
         if (keyboardState[DIK_O] & 0x80)
         {
-            DIMouse->Unacquire();
+            m_pDIMouse->Unacquire();
             m_bIsMouseAcquired = false;
         }
 
         if (keyboardState[DIK_I] & 0x80)
         {
-            DIMouse->Acquire();
+            m_pDIMouse->Acquire();
             m_bIsMouseAcquired = true;
         }
 
-        DIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
+        m_pDIMouse->GetDeviceState(sizeof(DIMOUSESTATE), &mouseCurrState);
 
         if (keyboardState[DIK_ESCAPE] & 0x80)
             PostMessage(hwnd, WM_DESTROY, 0, 0);
@@ -95,13 +95,13 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
 
         if (m_bIsMouseAcquired == true)
         {
-            if ((mouseCurrState.lX != mouseLastState.lX) || (mouseCurrState.lY != mouseLastState.lY))
+            if ((mouseCurrState.lX != m_MouseLastState.lX) || (mouseCurrState.lY != m_MouseLastState.lY))
             {
                 camera->RotateLeftRight(mouseCurrState.lX * 0.001f);
 
                 camera->RotateUpDown(mouseCurrState.lY * 0.001f);
 
-                mouseLastState = mouseCurrState;
+                m_MouseLastState = mouseCurrState;
             }
 
         }

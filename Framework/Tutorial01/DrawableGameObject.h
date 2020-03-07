@@ -11,6 +11,8 @@
 
 #include "Utilities/Helper.h"
 
+
+
 using namespace DirectX;
 
 struct SimpleVertex
@@ -40,27 +42,34 @@ public:
 	ID3D11SamplerState **getTextureSamplerState() { return &m_pSamplerLinear; }
 	MaterialPropertiesConstantBuffer getMaterial() { return m_material; }
 	void setPosition(XMFLOAT3 position);
+	XMFLOAT3 GetPosition() { return m_position; }
+
+	ID3D11ShaderResourceView* GetTextureArr(int val) { return g_pTextureArr[val]; }
+
+	ID3D11ShaderResourceView* g_pTextureArr[2]{ nullptr, nullptr };
 
 private:
 	XMMATRIX m_World;
 
-	ID3D11InputLayout* m_pVertexLayout = nullptr;
-	ID3D11Buffer *m_pVertexBuffer = nullptr;
-	ID3D11Buffer *m_pIndexBuffer = nullptr;
-	ID3D11ShaderResourceView *m_pTextureResourceView = nullptr;
-	ID3D11SamplerState *m_pSamplerLinear = nullptr;
-	MaterialPropertiesConstantBuffer m_material;
-	XMFLOAT3 m_position;
+	ID3D11InputLayout*					m_pVertexLayout = nullptr;
+	ID3D11Buffer*						m_pVertexBuffer = nullptr;
+	ID3D11Buffer*						m_pIndexBuffer = nullptr;
+
+	ID3D11ShaderResourceView*			m_pTextureResourceView = nullptr;
+	ID3D11SamplerState *				m_pSamplerLinear = nullptr;
+	MaterialPropertiesConstantBuffer    m_material;
+	XMFLOAT3							m_position = XMFLOAT3(0,0,0);
 
 
 	void CalculateModelVectors(SimpleVertex *vertices, int vertexCount);
-	void CalculateTangentBinormal2(SimpleVertex v0, SimpleVertex v1, SimpleVertex v2, XMFLOAT3 &normal, XMFLOAT3 &tangent, XMFLOAT3 &binormal);
+	void CalculateTangentBinormal3(SimpleVertex v0, SimpleVertex v1, SimpleVertex v2, XMFLOAT3 &normal, XMFLOAT3 &tangent, XMFLOAT3 &binormal);
 
 
-	ID3D11VertexShader* m_pVertexShader = nullptr;
-    ID3D11PixelShader* m_pPixelShader = nullptr;
+	ID3D11VertexShader*					m_pVertexShader = nullptr;
+    ID3D11PixelShader*					m_pPixelShader = nullptr;
 
-	ID3D11PixelShader* m_pPixelShaderSolid = nullptr;
+	ID3D11PixelShader*				    m_pPixelShaderSolid = nullptr;
 
-	ID3D11ShaderResourceView* g_pTextureArr[2]{ nullptr, nullptr };
+	
+
 };

@@ -16,8 +16,12 @@
 
 #include "DirectInput.h"
 
+#include "UserInterface.h"
+
+#include "OBJLoader.h"
+
 #define DEFAULT_WINDOW_TITLE L"Framework";
-#define DEFAULT_WINDOW_CLASS L"FrameworkClass"
+#define DEFAULT_WINDOW_CLASS L"FrameworkClass";
 
 #define DEFAULT_WINDOW_WIDTH 1280;
 #define DEFAULT_WINDOW_HEIGHT 720;
@@ -59,7 +63,9 @@ private:
 	// DirectInput
 	DirectInput* m_pDirectInput = nullptr;
 
-	
+	//User interface
+	UserInterface* m_pUserInterface = nullptr;
 
+	MeshData m_CubeMesh;
 
 };

@@ -31,7 +31,7 @@ struct _Material
 	//----------------------------------- (16 byte boundary)
 	float SpecularPower;
 	// Add some padding complete the 16 byte boundary.
-	int UseTexture;
+	bool UseTexture;
 	// Add some padding to complete the 16 byte boundary.
 	int UseBumpMap;
 	float Padding;

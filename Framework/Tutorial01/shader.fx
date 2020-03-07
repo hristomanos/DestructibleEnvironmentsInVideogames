@@ -192,22 +192,22 @@ LightingResult ComputeLighting(float4 vertexPos, float3 N)
 PS_INPUT VS( VS_INPUT input )
 {
     PS_INPUT output = (PS_INPUT)0; 
-    output.Pos = mul( input.Pos, World );
-	output.worldPos = output.Pos;
-    output.Pos = mul( output.Pos, View );
-    output.Pos = mul( output.Pos, Projection );
+    output.Pos = mul( input.Pos, World ); //Model to world
+	output.worldPos = output.Pos; //Assign world pos
+    output.Pos = mul( output.Pos, View ); //World to view
+    output.Pos = mul( output.Pos, Projection ); //View to projection
+	
+	output.Tex = input.Tex;
 
 	// multiply the normal by the world transform (to go from model space to world space)
-	
-
-	output.Tex = input.Tex;
    
 	float3 vertexToEye = EyePosition - output.worldPos.xyz;
 	float3 vertexToLight = Lights[0].Position - output.worldPos.xyz;
 
-	output.tangent = normalize(mul(float4(input.tangent, 1),World).xyz);
-	output.binormal = normalize(mul(float4(input.binormal, 1),World).xyz);
-	output.Norm = mul(float4(input.Norm, 1), World).xyz;
+	//Build TBN matrix
+	output.tangent = mul(input.tangent, World);
+	output.Norm = mul(float4(input.Norm, 1.0f), World).xyz;
+	output.binormal = normalize(mul(float4(input.binormal, 1.0f),World).xyz);
 
 	float3x3 TBN = float3x3(output.tangent, output.binormal, output.Norm);
 	float3x3 TBN_inv = transpose(TBN);
@@ -225,99 +225,151 @@ PS_INPUT VS( VS_INPUT input )
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	LightingResult lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
+	LightingResult lit;// = ComputeLighting(IN.worldPos, normalize(IN.Norm));
+
+
+	IN.Norm = normalize(IN.Norm);
 
 	float4 texColor = { 1, 1, 1, 1 };
-	float4 bumpMap = txDiffuse[1].Sample(samLinear, IN.Tex);
-	float4 emissive = Material.Emissive;
-	float4 ambient = Material.Ambient * GlobalAmbient;
-	float4 diffuse = Material.Diffuse * lit.Diffuse;
-	float4 specular = Material.Specular * lit.Specular;
-	float4 lightIntensity = { 1, 1, 1, 1 };
-
-	float4 fHeightMapScale = 0.1f;
-	float fParallaxLimit = -length(IN.eyeVectorTS.xy) / IN.eyeVectorTS.z;
-		  fParallaxLimit *= fHeightMapScale;
-	
-	float2 vOffsetDir = normalize(IN.eyeVectorTS.xy);
-	float2 vMaxOffset = vOffsetDir * fParallaxLimit;
-
-	int nNumSamples = (int)lerp(1, 0, dot(IN.Pos - IN.eyeVectorTS, IN.Norm));
-	float fStepSize = 1.0 / (float)nNumSamples;
-
-	float2 dx = ddx(IN.Tex);
-	float2 dy = ddy(IN.Tex);
-	float fCurrRayHeight = 1.0;
-
-	float2 vCurrOffset = float2(0, 0);
-	float2 vLastOffset = float2(0, 0);
-
-	float fLastSampledHeight = 1;
-	float fCurrSampledHeight = 1;
-
-	int nCurrSample = 0;
-
-	while (nCurrSample < nNumSamples)
-	{
-		fCurrSampledHeight = txDiffuse[2].SampleGrad(samLinear, IN.Tex + vCurrOffset, dx, dy).r;
-		if (fCurrSampledHeight > fCurrRayHeight)
-		{
-			float delta1 = fCurrSampledHeight - fCurrRayHeight;
-			float delta2 = (fCurrRayHeight + fStepSize) - fLastSampledHeight;
-
-			float ratio = delta1 / (delta1 + delta2);
-
-			vCurrOffset = (ratio)* vLastOffset + (1.0 - ratio) * vCurrOffset;
-
-			nCurrSample = nNumSamples + 1;
-		}
-		else
-		{
-			nCurrSample++;
-
-			fCurrRayHeight -= fStepSize;
-
-			vLastOffset = vCurrOffset;
-			vCurrOffset += fStepSize * vMaxOffset;
-
-			fLastSampledHeight = fCurrSampledHeight;
-		}
-	}
-
-	float2 vFinalCoords = IN.Tex + vCurrOffset;
-
-	float4 vFinalNormal = txDiffuse[1].Sample(samLinear, vFinalCoords);
-
-	float4 vFinalColor = txDiffuse[0].Sample(samLinear, vFinalCoords);
-	// Expand the final normal vector from [0,1] to [-1,1] range.
-	vFinalNormal = vFinalNormal * 2.0f - 1.0f;
-
-	float3 vAmbient = vFinalColor.rgb * 0.1f;
-	float3 vDiffuse = vFinalColor.rgb * max(0.0f, dot(lit.Diffuse, vFinalNormal.xyz)) * 0.5f;
-
-	vFinalColor.rgb = vAmbient + vDiffuse;
-
-	//OUT.color = vFinalColor;*/
-
-
 
 	if (Material.UseTexture)
 	{
 		texColor = txDiffuse[0].Sample(samLinear, IN.Tex);
 	}
 
-	if (Material.UseBumpMap)
-	{
+	float4 lightIntensity = { 1, 1, 1, 1 };
+
+	//if (Material.UseBumpMap)
+	//{
+		//Load normal map
+		float4 bumpMap = txDiffuse[1].Sample(samLinear, IN.Tex);
+
+		//Change normal map range from [0,1] to [-1,1]
 		bumpMap = (bumpMap * 2.0f) - 1.0f;
-		bumpMap = float4(normalize(bumpMap.xyz), 1);
 
-        lightIntensity = saturate(dot(bumpMap, lit.Direction));
-    }
+		float3 N = IN.Norm;
+		float3 T = normalize(IN.tangent - dot(IN.tangent, N) * N);
+		float3 B = cross(N, T);
+		float3x3 TBN = float3x3(T, B, N);
 
-    float4 finalColor = saturate((emissive + ambient + diffuse + specular) * lightIntensity) * texColor;
+		float3 bumpedNormal = mul(bumpMap, TBN);
+		
+		////Make sure tangent is completely orthogonal to normal
+		//IN.tangent = normalize(IN.tangent - dot(IN.tangent, IN.Norm) * IN.Norm);
+
+		////Create biTangent
+		//float3 biTangent = cross(IN.Norm, IN.tangent);
+
+		////Create the "Texture space"
+		//float3x3 texSpace = float3x3(IN.tangent,biTangent,IN.Norm);
+
+		//float3 inNorm = normalize(mul(bumpMap,texSpace));
+
+		//bumpMap = float4(normalize(bumpMap.xyz), 1);
+
+		//lightIntensity = saturate(dot(bumpMap, lit.Direction));
+
+		lit = ComputeLighting(IN.worldPos, normalize(bumpedNormal));
+	//}
+	//else
+	//{
+		//lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
+
+	//}
+
+	
+
+
+	float4 diffuse = Material.Diffuse * lit.Diffuse;
+	float4 ambient = Material.Ambient * GlobalAmbient;
+
+	
+	////finalColor = diffuse * ambient;
+	//finalColor = lit.Diffuse * GlobalAmbient;
+	//finalColor += saturate(dot(lit.Direction, IN.Norm) * diffuse* lit.Diffuse);
+
+
+	float4 emissive = Material.Emissive;
+	float4 specular = Material.Specular * lit.Specular;
+
+	//float4 fHeightMapScale = 0.1f;
+	//float fParallaxLimit = -length(IN.eyeVectorTS.xy) / IN.eyeVectorTS.z;
+	//	  fParallaxLimit *= fHeightMapScale;
+	//
+	//float2 vOffsetDir = normalize(IN.eyeVectorTS.xy);
+	//float2 vMaxOffset = vOffsetDir * fParallaxLimit;
+
+	//int nNumSamples = (int)lerp(1, 0, dot(IN.Pos - IN.eyeVectorTS, IN.Norm));
+	//float fStepSize = 1.0 / (float)nNumSamples;
+
+	//float2 dx = ddx(IN.Tex);
+	//float2 dy = ddy(IN.Tex);
+	//float fCurrRayHeight = 1.0;
+
+	//float2 vCurrOffset = float2(0, 0);
+	//float2 vLastOffset = float2(0, 0);
+
+	//float fLastSampledHeight = 1;
+	//float fCurrSampledHeight = 1;
+
+	//int nCurrSample = 0;
+
+	//while (nCurrSample < nNumSamples)
+	//{
+	//	fCurrSampledHeight = txDiffuse[2].SampleGrad(samLinear, IN.Tex + vCurrOffset, dx, dy).r;
+	//	if (fCurrSampledHeight > fCurrRayHeight)
+	//	{
+	//		float delta1 = fCurrSampledHeight - fCurrRayHeight;
+	//		float delta2 = (fCurrRayHeight + fStepSize) - fLastSampledHeight;
+
+	//		float ratio = delta1 / (delta1 + delta2);
+
+	//		vCurrOffset = (ratio)* vLastOffset + (1.0 - ratio) * vCurrOffset;
+
+	//		nCurrSample = nNumSamples + 1;
+	//	}
+	//	else
+	//	{
+	//		nCurrSample++;
+
+	//		fCurrRayHeight -= fStepSize;
+
+	//		vLastOffset = vCurrOffset;
+	//		vCurrOffset += fStepSize * vMaxOffset;
+
+	//		fLastSampledHeight = fCurrSampledHeight;
+	//	}
+	//}
+
+	//float2 vFinalCoords = IN.Tex; // +vCurrOffset;
+
+	//float4 vFinalNormal = txDiffuse[1].Sample(samLinear, vFinalCoords);
+
+	//float4 vFinalColor = txDiffuse[0].Sample(samLinear, vFinalCoords);
+	//// Expand the final normal vector from [0,1] to [-1,1] range.
+	//vFinalNormal = vFinalNormal * 2.0f - 1.0f;
+
+	//float3 vAmbient = vFinalColor.rgb * 0.1f;
+	//float3 vDiffuse = vFinalColor.rgb * max(0.0f, dot(lit.Diffuse, vFinalNormal.xyz)) * 0.5f;
+
+	//vFinalColor.rgb = vAmbient + vDiffuse;
+
+	//OUT.color = vFinalColor;*/
+
+
+
+	
+
+	
+
+   float4 finalColor = (emissive + ambient + diffuse + specular)* texColor;
+
+	//float4 finalColor;
 
 	//return finalColor;
-	return vFinalColor;
+	return finalColor;
+
+	//return float4(finalColor, diffuse.a);
 }
 
 //--------------------------------------------------------------------------------------
@@ -326,4 +378,25 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 float4 PSSolid(PS_INPUT input) : SV_Target
 {
 	return vOutputColor;
+}
+
+//---------------------------------------------------------------------------------------
+// Transforms a normal map sample to world space.
+//---------------------------------------------------------------------------------------
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+	// Uncompress each component from [0,1] to [-1,1].
+	float3 normalT = 2.0f * normalMapSample - 1.0f;
+
+	// Build orthonormal basis.
+	float3 N = unitNormalW;
+	float3 T = normalize(tangentW - dot(tangentW, N) * N);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Transform from tangent space to world space.
+	float3 bumpedNormalW = mul(normalT, TBN);
+
+	return bumpedNormalW;
 }
