@@ -64,6 +64,8 @@ public:
 	XMFLOAT4 GetLightPosition()												{ return m_LightPosition; }
 	void	 SetLightPosition(XMFLOAT4 newLightPos)							{ m_LightPosition = newLightPos; }
 
+	float*	GetLightColour()												{ return m_LightColour; }
+	void	SetLightColour(float* newLightColour)							{ for (int i = 0; i < 4; i++)	m_LightColour[i] = newLightColour[i]; }
 
 private:
 	D3D_DRIVER_TYPE		    m_driverType = D3D_DRIVER_TYPE_NULL;
@@ -84,6 +86,11 @@ private:
 	ID3D11Buffer*			m_pMaterialConstantBuffer = nullptr;
 
 	ID3D11Buffer*			m_pLightConstantBuffer = nullptr;
+	XMFLOAT4				m_LightPosition = XMFLOAT4(0.0f, 0.0f, -5.0f, 1.0f);
+	ID3D11Buffer*			m_ConstantPerInstanceBuffer = nullptr;
 
-	XMFLOAT4				m_LightPosition = XMFLOAT4(0.0f, 0.0f, -1.0f, 1.0f);
+	float m_LightColour[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	void CreateConstantBuffers();
+
 };

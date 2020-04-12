@@ -11,8 +11,22 @@ struct ConstantBuffer
 	XMMATRIX mWorld;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
-	XMFLOAT4 vOutputColor;
+	bool isInstance;
 };
+
+struct ConstantBufferPerScene
+{
+	XMMATRIX cubesWorld;
+};
+
+
+struct InstanceData
+{
+	XMFLOAT3 pos;
+};
+
+
+
 
 struct _Material
 {

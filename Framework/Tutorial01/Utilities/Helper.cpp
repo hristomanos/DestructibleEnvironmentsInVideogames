@@ -39,6 +39,8 @@ HRESULT Helper::CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoi
 }
 
 
+
+
 //--------------------------------------------------------------------------------------
 // Called every time the application receives a message
 //--------------------------------------------------------------------------------------
@@ -76,7 +78,10 @@ LRESULT CALLBACK Helper::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		hdc = BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);
 		break;
-
+	case WM_SIZE:
+		ClientWidth = LOWORD(lParam);
+		ClientHeight = HIWORD(lParam);
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

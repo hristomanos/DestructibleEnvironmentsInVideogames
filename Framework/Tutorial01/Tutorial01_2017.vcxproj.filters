@@ -42,6 +42,8 @@
     </ClCompile>
     <ClCompile Include="UserInterface.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="ImGui\imgui_demo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -120,6 +122,7 @@
     </ClInclude>
     <ClInclude Include="UserInterface.h" />
     <ClInclude Include="OBJLoader.h" />
+    <ClInclude Include="Chunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

@@ -17,7 +17,7 @@
 #include "DirectInput.h"
 
 #include "UserInterface.h"
-
+#include"Chunk.h"
 #include "OBJLoader.h"
 
 #define DEFAULT_WINDOW_TITLE L"Framework";
@@ -60,12 +60,27 @@ private:
 	// GameObject
 	DrawableGameObject* m_pGameObject = nullptr;
 
+	
+
+	//CHUNK
+	DrawableGameObject* m_Cubes[2][2][2];
+	bool m_VoxelMap[2][2][2];
+	bool CheckVoxel();
+	Chunk* m_pChunk = nullptr;
+
+
 	// DirectInput
 	DirectInput* m_pDirectInput = nullptr;
 
 	//User interface
 	UserInterface* m_pUserInterface = nullptr;
 
+	//Obj loader
 	MeshData m_CubeMesh;
+
+
+	ConstantBuffer cb1;
+
+	
 
 };

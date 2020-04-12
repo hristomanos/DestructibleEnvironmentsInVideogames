@@ -16,8 +16,10 @@ cbuffer ConstantBuffer : register( b0 )
 	matrix Projection;
 	float4 vLightDir[2];
 	float4 vLightColor[2];
-	float4 vOutputColor;
+	bool isInstanse;
 }
+
+
 
 Texture2D txDiffuse[3] : register(t0);
 SamplerState samLinear : register(s0);
@@ -228,84 +230,59 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	LightingResult lit;// = ComputeLighting(IN.worldPos, normalize(IN.Norm));
 
 
-	IN.Norm = normalize(IN.Norm);
-
-	float4 texColor = { 1, 1, 1, 1 };
+	float4 texColor = {1, 1, 1, 1 };
 
 	if (Material.UseTexture)
 	{
 		texColor = txDiffuse[0].Sample(samLinear, IN.Tex);
 	}
 
-	float4 lightIntensity = { 1, 1, 1, 1 };
 
-	//if (Material.UseBumpMap)
-	//{
+	if (Material.UseBumpMap)
+	{
 		//Load normal map
 		float4 bumpMap = txDiffuse[1].Sample(samLinear, IN.Tex);
 
-		//Change normal map range from [0,1] to [-1,1]
+		bumpMap = float4(normalize(bumpMap.xyz), 1);
+		//Decompress normal map range from color component [0,1] to vector component [-1,1]
+		//Goes from texel to normal vector
 		bumpMap = (bumpMap * 2.0f) - 1.0f;
 
-		float3 N = IN.Norm;
-		float3 T = normalize(IN.tangent - dot(IN.tangent, N) * N);
-		float3 B = cross(N, T);
-		float3x3 TBN = float3x3(T, B, N);
+		//Fix: Inverse normal map due to incorrect texture UVs
+		bumpMap.y *= -1;
 
-		float3 bumpedNormal = mul(bumpMap, TBN);
-		
-		////Make sure tangent is completely orthogonal to normal
-		//IN.tangent = normalize(IN.tangent - dot(IN.tangent, IN.Norm) * IN.Norm);
+		IN.Norm = float4(normalize(bumpMap.xyz), 1);
+	}
 
-		////Create biTangent
-		//float3 biTangent = cross(IN.Norm, IN.tangent);
-
-		////Create the "Texture space"
-		//float3x3 texSpace = float3x3(IN.tangent,biTangent,IN.Norm);
-
-		//float3 inNorm = normalize(mul(bumpMap,texSpace));
-
-		//bumpMap = float4(normalize(bumpMap.xyz), 1);
-
-		//lightIntensity = saturate(dot(bumpMap, lit.Direction));
-
-		lit = ComputeLighting(IN.worldPos, normalize(bumpedNormal));
-	//}
-	//else
-	//{
-		//lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
-
-	//}
-
-	
-
-
-	float4 diffuse = Material.Diffuse * lit.Diffuse;
-	float4 ambient = Material.Ambient * GlobalAmbient;
-
-	
-	////finalColor = diffuse * ambient;
-	//finalColor = lit.Diffuse * GlobalAmbient;
-	//finalColor += saturate(dot(lit.Direction, IN.Norm) * diffuse* lit.Diffuse);
+	lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
 
 
 	float4 emissive = Material.Emissive;
+	float4 ambient = Material.Ambient * GlobalAmbient;
+	float4 diffuse = Material.Diffuse * lit.Diffuse;
 	float4 specular = Material.Specular * lit.Specular;
 
+
+	//////Parallax offset length
 	//float4 fHeightMapScale = 0.1f;
 	//float fParallaxLimit = -length(IN.eyeVectorTS.xy) / IN.eyeVectorTS.z;
-	//	  fParallaxLimit *= fHeightMapScale;
-	//
-	//float2 vOffsetDir = normalize(IN.eyeVectorTS.xy);
-	//float2 vMaxOffset = vOffsetDir * fParallaxLimit;
+	//fParallaxLimit *= fHeightMapScale;
 
-	//int nNumSamples = (int)lerp(1, 0, dot(IN.Pos - IN.eyeVectorTS, IN.Norm));
+	//////Offset direction
+	//float2 vOffsetDir = normalize(IN.eyeVectorTS.xy); //Normalised vector in the direction of offset
+	//float2 vMaxOffset = vOffsetDir * fParallaxLimit; //The direction is scaled by the maximum paralax offset
+
+	////Number of samples
+	//int nNumSamples = (int)lerp(1, 0, dot(IN.Pos - IN.eyeVectorTS, IN.Norm)); //Lerp between a user specified minimum and maximum number of samples.
+	////int nNumSamples = (int)lerp(1, 0, dot(IN.eyeVectorTS, IN.Norm)); //Lerp between a user specified maximum and minimum number of samples.
 	//float fStepSize = 1.0 / (float)nNumSamples;
 
+	////For dynamic branching need to use SampleGrad instruction instead of Sample instruction.
 	//float2 dx = ddx(IN.Tex);
 	//float2 dy = ddy(IN.Tex);
-	//float fCurrRayHeight = 1.0;
 
+	////Init variables needed for dynamic loop 
+	//float fCurrRayHeight = 1.0;
 	//float2 vCurrOffset = float2(0, 0);
 	//float2 vLastOffset = float2(0, 0);
 
@@ -314,6 +291,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 
 	//int nCurrSample = 0;
 
+	////Finds the the intersection of the eye vector with the height - map as efficiently as possible
 	//while (nCurrSample < nNumSamples)
 	//{
 	//	fCurrSampledHeight = txDiffuse[2].SampleGrad(samLinear, IN.Tex + vCurrOffset, dx, dy).r;
@@ -341,44 +319,35 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	//	}
 	//}
 
-	//float2 vFinalCoords = IN.Tex; // +vCurrOffset;
+	//float2 vFinalCoords = IN.Tex + vCurrOffset;
 
 	//float4 vFinalNormal = txDiffuse[1].Sample(samLinear, vFinalCoords);
 
+
 	//float4 vFinalColor = txDiffuse[0].Sample(samLinear, vFinalCoords);
+
 	//// Expand the final normal vector from [0,1] to [-1,1] range.
 	//vFinalNormal = vFinalNormal * 2.0f - 1.0f;
+
+	//vFinalNormal.y *= -1;
+
+
 
 	//float3 vAmbient = vFinalColor.rgb * 0.1f;
 	//float3 vDiffuse = vFinalColor.rgb * max(0.0f, dot(lit.Diffuse, vFinalNormal.xyz)) * 0.5f;
 
 	//vFinalColor.rgb = vAmbient + vDiffuse;
 
-	//OUT.color = vFinalColor;*/
 
 
+   float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
 
-	
 
-	
-
-   float4 finalColor = (emissive + ambient + diffuse + specular)* texColor;
-
-	//float4 finalColor;
-
-	//return finalColor;
 	return finalColor;
 
-	//return float4(finalColor, diffuse.a);
+	//return  vFinalColor;
 }
 
-//--------------------------------------------------------------------------------------
-// PSSolid - render a solid color
-//--------------------------------------------------------------------------------------
-float4 PSSolid(PS_INPUT input) : SV_Target
-{
-	return vOutputColor;
-}
 
 //---------------------------------------------------------------------------------------
 // Transforms a normal map sample to world space.

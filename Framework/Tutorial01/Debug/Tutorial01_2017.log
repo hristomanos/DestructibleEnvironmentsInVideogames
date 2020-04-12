@@ -1,36 +1,23 @@
 ﻿  Application.cpp
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.h(23,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Graphics.h(12): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.h(24,1): warning C4005: 'DEFAULT_WINDOW_CLASS': macro redefinition
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Graphics.h(13): message : see previous definition of 'DEFAULT_WINDOW_CLASS'
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.cpp(25,55): warning C4316: 'Camera': object allocated on the heap may not be aligned 16
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.cpp(38,42): warning C4316: 'DrawableGameObject': object allocated on the heap may not be aligned 16
-  Camera.cpp
-  DDSTextureLoader.cpp
-  DirectInput.cpp
-  C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\DirectInput.cpp(77,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  DrawableGameObject.cpp
-  Graphics.cpp
-  imgui.cpp
-  imgui_draw.cpp
-  imgui_impl_dx11.cpp
-  imgui_impl_win32.cpp
-  imgui_widgets.cpp
-  OBJLoader.cpp
-  UserInterface.cpp
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\UserInterface.cpp(22,11): warning C4189: 'io': local variable is initialized but not referenced
-  Helper.cpp
+F:\Uni\FYP\_Framework\Tutorial01\Application.h(23,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\FYP\_Framework\Tutorial01\Graphics.h(12): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
+F:\Uni\FYP\_Framework\Tutorial01\Application.h(24,1): warning C4005: 'DEFAULT_WINDOW_CLASS': macro redefinition
+F:\Uni\FYP\_Framework\Tutorial01\Graphics.h(13): message : see previous definition of 'DEFAULT_WINDOW_CLASS'
+F:\Uni\FYP\_Framework\Tutorial01\Application.cpp(33,55): warning C4316: 'Camera': object allocated on the heap may not be aligned 16
+F:\Uni\FYP\_Framework\Tutorial01\Application.cpp(46,42): warning C4316: 'DrawableGameObject': object allocated on the heap may not be aligned 16
+  Chunk.cpp
+F:\Uni\FYP\_Framework\Tutorial01\Chunk.cpp(19,56): warning C4316: 'DrawableGameObject': object allocated on the heap may not be aligned 16
+F:\Uni\FYP\_Framework\Tutorial01\Chunk.cpp(62,61): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+F:\Uni\FYP\_Framework\Tutorial01\Chunk.cpp(62,54): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+F:\Uni\FYP\_Framework\Tutorial01\Chunk.cpp(62,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   main.cpp
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\dinput.h: DIRECTINPUT_VERSION undefined. Defaulting to version 0x0800
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.h(23,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Graphics.h(12): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.h(24,1): warning C4005: 'DEFAULT_WINDOW_CLASS': macro redefinition
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Graphics.h(13): message : see previous definition of 'DEFAULT_WINDOW_CLASS'
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\main.cpp(80,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\Application.h(23): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\main.cpp(476,7): warning C4189: 'xPos': local variable is initialized but not referenced
-C:\Users\xrist\Documents\fyp\Framework\Tutorial01\main.cpp(477,7): warning C4189: 'yPos': local variable is initialized but not referenced
+F:\Uni\FYP\_Framework\Tutorial01\Application.h(23,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\FYP\_Framework\Tutorial01\Graphics.h(12): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
+F:\Uni\FYP\_Framework\Tutorial01\Application.h(24,1): warning C4005: 'DEFAULT_WINDOW_CLASS': macro redefinition
+F:\Uni\FYP\_Framework\Tutorial01\Graphics.h(13): message : see previous definition of 'DEFAULT_WINDOW_CLASS'
+F:\Uni\FYP\_Framework\Tutorial01\main.cpp(25,1): warning C4005: 'DEFAULT_WINDOW_TITLE': macro redefinition
+F:\Uni\FYP\_Framework\Tutorial01\Application.h(23): message : see previous definition of 'DEFAULT_WINDOW_TITLE'
   Generating Code...
-  Tutorial01_2017.vcxproj -> C:\Users\xrist\Documents\fyp\Framework\Debug\Tutorial01.exe
+  Tutorial01_2017.vcxproj -> F:\Uni\FYP\_Framework\Debug\Tutorial01.exe

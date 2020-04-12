@@ -13,6 +13,7 @@ Camera::Camera(UINT WindowWidth,UINT WindowHeight)
 
 	//Set the Projection matrix
 	m_CamProjection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)WindowWidth / WindowHeight, 0.01f, 1000.0f);
+
 }
 
 

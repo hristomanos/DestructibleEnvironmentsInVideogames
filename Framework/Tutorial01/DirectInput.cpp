@@ -2,10 +2,9 @@
 #include <dwrite.h>
 #include <dinput.h>
 
-
 DirectInput::DirectInput()
 {
-    
+  
 }
 
 
@@ -37,16 +36,22 @@ bool DirectInput::InitDirectInput(HINSTANCE hInstance,HWND hWnd)
 
 	//Set data format for the direct input devices
 	hr = m_pDIKeyboard->SetDataFormat(&c_dfDIKeyboard);
-	hr = m_pDIKeyboard->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	hr = m_pDIKeyboard->SetCooperativeLevel(hWnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
 
 	hr = m_pDIMouse->SetDataFormat(&c_dfDIMouse);
-	hr = m_pDIMouse->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_NOWINKEY | DISCL_FOREGROUND);
+	hr = m_pDIMouse->SetCooperativeLevel(hWnd, DISCL_NONEXCLUSIVE | DISCL_NOWINKEY | DISCL_BACKGROUND);
+
+    for (int i = 0; i < 5; i++)
+    {
+        cubeHit[i] = 0;
+    }
+
 
 	return true;
 
 }
 
-void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
+void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd, std::vector<XMFLOAT3>& vertPosArray, std::vector<WORD>& indexPosArray, XMMATRIX& worldSpace)
 {
         DIMOUSESTATE mouseCurrState;
 
@@ -93,17 +98,82 @@ void DirectInput::DetectInput(double time, Camera* camera,HWND hwnd)
             camera->MoveBackward(speed);
         }
 
+
+
+
+
         if (m_bIsMouseAcquired == true)
         {
-            if ((mouseCurrState.lX != m_MouseLastState.lX) || (mouseCurrState.lY != m_MouseLastState.lY))
-            {
-                camera->RotateLeftRight(mouseCurrState.lX * 0.001f);
+			////Left mouse button was pressed
+			if (mouseCurrState.rgbButtons[0])
+			{
+				if (isShoot == false)
+				{
+                    //Get curson position on 2D screen space
+					POINT mousePos;
+					GetCursorPos(&mousePos);
 
-                camera->RotateUpDown(mouseCurrState.lY * 0.001f);
+                    //Translate position to the client windows position 
+                    //(In windowed mode, the client window might 
+                    //not align exactly with the monitors screen)
+					ScreenToClient(hwnd, &mousePos); 
 
-                m_MouseLastState = mouseCurrState;
-            }
+                    //X and Y coordinates of the cursor
+					int mouseX = mousePos.x;
+					int mouseY = mousePos.y;
 
+					float tempDist; //Will store the picked distance to the current object being checked
+					float closestDist = FLT_MAX; //Disance to closest object.
+					int hitIndex; // Will store the index value of the closest picked object.
+
+					XMVECTOR pickRayInWorldSpacePos, pickRayInWorldSpaceDir; //World space picking ray position and direction
+
+                    //TRANSFORM from 2D projection space to 3D world space
+					PickRayVector(mouseX, mouseY, pickRayInWorldSpacePos, pickRayInWorldSpaceDir,camera); 
+
+					
+
+					//Checks every pickable object for an intersection with our picking ray.
+					//for (int i = 0; i < 5; i++)
+					//{
+                        //No need to check bottles already hit
+						//if (cubesHit[i] == 0)
+						//{
+                            //Checks for intersections
+							tempDist = Pick(pickRayInWorldSpacePos, pickRayInWorldSpaceDir, vertPosArray, indexPosArray, worldSpace);
+							if (tempDist < closestDist)
+							{
+								closestDist = tempDist;
+								hitIndex = 1;
+                                rayHit = true;
+							}
+						//}
+					//}
+
+					if (closestDist < FLT_MAX)
+					{
+						cubeHit[hitIndex] = 1;
+						pickedDist = closestDist;
+						
+					}
+
+					isShoot = true;
+				}
+			}
+				if (!mouseCurrState.rgbButtons[0])
+				{
+					isShoot = false;
+                    rayHit = false;
+				}
+
+				if ((mouseCurrState.lX != m_MouseLastState.lX) || (mouseCurrState.lY != m_MouseLastState.lY))
+				{
+					camera->RotateLeftRight(mouseCurrState.lX * 0.001f);
+
+					camera->RotateUpDown(mouseCurrState.lY * 0.001f);
+
+					m_MouseLastState = mouseCurrState;
+				}
         }
 
      camera->UpdateCamera();
@@ -121,4 +191,164 @@ bool DirectInput::is_left_Button_Pressed(DIMOUSESTATE mouseCurrState)
     }
 
     return false;
+}
+
+void DirectInput::PickRayVector(float mouseX, float mouseY, XMVECTOR& pickRayInWorldSpacePos,XMVECTOR& pickRayInWorldSpaceDir, Camera* camera)
+{
+	XMVECTOR pickRayInViewSpaceDir = XMVectorSet(0.0f,0.0f,0.0f,0.0f);
+	XMVECTOR pickRayInViewSpacePos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+    //2D SCREEN SPACE -> 3D VIEW SPACE
+	//Transform 2D pick position on screen space to 3D ray in View space
+    float PRVecX, PRVecY, PRVecZ;
+	XMMATRIX camProjection = camera->GetProjectionMatrix();
+
+    //int ClientWidth = Helper::GetClientWidth();
+    //int ClientHeight = Helper::GetClientHeight();
+
+	PRVecX = (((2.0 * mouseX) / 1280 )  - 1 ) / camProjection(0, 0);
+	PRVecY = -(((2.0 * mouseY) / 720)   - 1)  / camProjection(1, 1);
+	PRVecZ = 1.0f; //View space's Z direction ranges from 0 to 1, so we set 1 since the ray goes "into" the screen
+
+	pickRayInViewSpaceDir = XMVectorSet(PRVecX, PRVecY, PRVecZ, 0.0f);
+
+    //Center of screen to be point that creates picking ray
+	//pickRayInViewSpaceDir = XMVectorSet(0.0f,0.0f,1.0f,0.0f);
+
+
+    //2D VIEW SPACE -> 3D WORLD SPACE
+	//Transform 3D Ray from View space to 3D ray in World space
+	XMMATRIX pickRayToWorldSpaceMatrix;
+	XMVECTOR matInvDeter; 
+
+	pickRayToWorldSpaceMatrix = XMMatrixInverse(&matInvDeter, camera->GetViewMatrix());
+
+
+	pickRayInWorldSpacePos = XMVector3TransformCoord(pickRayInViewSpacePos, pickRayToWorldSpaceMatrix);
+	pickRayInWorldSpaceDir = XMVector3TransformNormal(pickRayInViewSpaceDir, pickRayToWorldSpaceMatrix);
+
+
+
+}
+
+
+bool DirectInput::PointInTriangle(XMVECTOR& triV1, XMVECTOR& triV2, XMVECTOR& triV3, XMVECTOR& point)
+{
+    //To find out if the point is inside the triangle, we will check to see if the point
+    //is on the correct side of each of the triangles edges.
+
+    XMVECTOR cp1 = XMVector3Cross((triV3 - triV2), (point - triV2));
+    XMVECTOR cp2 = XMVector3Cross((triV3 - triV2), (triV1 - triV2));
+    if (XMVectorGetX(XMVector3Dot(cp1, cp2)) >= 0)
+    {
+        cp1 = XMVector3Cross((triV3 - triV1), (point - triV1));
+        cp2 = XMVector3Cross((triV3 - triV1), (triV2 - triV1));
+        if (XMVectorGetX(XMVector3Dot(cp1, cp2)) >= 0)
+        {
+            cp1 = XMVector3Cross((triV2 - triV1), (point - triV1));
+            cp2 = XMVector3Cross((triV2 - triV1), (triV3 - triV1));
+            if (XMVectorGetX(XMVector3Dot(cp1, cp2)) >= 0)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+    return false;
+}
+
+
+//Checks our object to see if our ray intersects with it. 
+//It returns a float which is the distance to the picked object.
+//Otherwise: float_max
+float DirectInput::Pick(XMVECTOR pickRayInWorldSpacePos,
+    XMVECTOR pickRayInWorldSpaceDir,
+    std::vector<XMFLOAT3>& vertPosArray,
+    std::vector<WORD>& indexPosArray,
+    XMMATRIX& worldSpace)
+{
+    //Loop through each triangle in the object
+    for (int i = 0; i < indexPosArray.size() / 3; i++)
+    {
+        //Fill in the plane equation to identify the plane for intersection checking
+        //Triangle's vertices V1, V2, V3
+        XMVECTOR tri1V1 = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+        XMVECTOR tri1V2 = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+        XMVECTOR tri1V3 = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+        //Temporary 3d floats for each vertex
+        XMFLOAT3 tV1, tV2, tV3;
+
+        //Get triangle 
+        tV1 = vertPosArray[indexPosArray[(i * 3) + 0]]; //0
+        tV2 = vertPosArray[indexPosArray[(i * 3) + 1]]; //4
+        tV3 = vertPosArray[indexPosArray[(i * 3) + 2]]; //7
+
+        tri1V1 = XMVectorSet(tV1.x, tV1.y, tV1.z, 0.0f);
+        tri1V2 = XMVectorSet(tV2.x, tV2.y, tV2.z, 0.0f);
+        tri1V3 = XMVectorSet(tV3.x, tV3.y, tV3.z, 0.0f);
+
+        //Transform the vertices to world space
+        tri1V1 = XMVector3TransformCoord(tri1V1, worldSpace);
+        tri1V2 = XMVector3TransformCoord(tri1V2, worldSpace);
+        tri1V3 = XMVector3TransformCoord(tri1V3, worldSpace);
+
+        //Find the normal using U, V coordinates (two edges)
+        XMVECTOR U = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+        XMVECTOR V = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+        XMVECTOR faceNormal = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+        //Get two edges
+        U = tri1V2 - tri1V1;
+        V = tri1V3 - tri1V1;
+
+        //Compute face normal by crossing U, V
+        faceNormal = XMVector3Cross(U, V);
+
+        faceNormal = XMVector3Normalize(faceNormal);
+
+        //Calculate a point on the triangle for the plane equation
+        XMVECTOR triPoint = tri1V1;
+
+        //Get plane equation ("Ax + By + Cz + D = 0") Variables
+        float tri1A = XMVectorGetX(faceNormal);
+        float tri1B = XMVectorGetY(faceNormal);
+        float tri1C = XMVectorGetZ(faceNormal);
+        float tri1D = (-tri1A * XMVectorGetX(triPoint) - tri1B * XMVectorGetY(triPoint) - tri1C * XMVectorGetZ(triPoint));
+
+        //Now we find where (on the ray) the ray intersects with the triangles plane
+        float ep1, ep2, t = 0.0f;
+        float planeIntersectX, planeIntersectY, planeIntersectZ = 0.0f;
+        XMVECTOR pointInPlane = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+        ep1 = (XMVectorGetX(pickRayInWorldSpacePos) * tri1A) + (XMVectorGetY(pickRayInWorldSpacePos) * tri1B) + (XMVectorGetZ(pickRayInWorldSpacePos) * tri1C);
+        ep2 = (XMVectorGetX(pickRayInWorldSpaceDir) * tri1A) + (XMVectorGetY(pickRayInWorldSpaceDir) * tri1B) + (XMVectorGetZ(pickRayInWorldSpaceDir) * tri1C);
+
+        //Make sure there are no divide-by-zeros
+        if (ep2 != 0.0f)
+            t = -(ep1 + tri1D) / (ep2);
+
+        if (t > 0.0f)    //Make sure you don't pick objects behind the camera
+        {
+            //Get the point on the plane
+            planeIntersectX = XMVectorGetX(pickRayInWorldSpacePos) + XMVectorGetX(pickRayInWorldSpaceDir) * t;
+            planeIntersectY = XMVectorGetY(pickRayInWorldSpacePos) + XMVectorGetY(pickRayInWorldSpaceDir) * t;
+            planeIntersectZ = XMVectorGetZ(pickRayInWorldSpacePos) + XMVectorGetZ(pickRayInWorldSpaceDir) * t;
+
+            pointInPlane = XMVectorSet(planeIntersectX, planeIntersectY, planeIntersectZ, 0.0f);
+
+            //Call function to check if point is in the triangle
+            if (PointInTriangle(tri1V1, tri1V2, tri1V3, pointInPlane))
+            {
+                //Return the distance to the hit, so you can check all the other pickable objects in your scene
+                //and choose whichever object is closest to the camera
+                return t / 2.0f;
+            }
+        }
+    }
+    //return the max float value (near infinity) if an object was not picked
+    return FLT_MAX;
 }
