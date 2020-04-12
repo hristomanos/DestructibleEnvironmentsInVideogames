@@ -40,6 +40,8 @@
     <ClCompile Include="ImGui\imgui_draw.cpp">
       <Filter>Source Files\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="UserInterface.cpp" />
+    <ClCompile Include="OBJLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -116,6 +118,8 @@
     <ClInclude Include="ImGui\imstb_truetype.h">
       <Filter>Header Files\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="UserInterface.h" />
+    <ClInclude Include="OBJLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">
