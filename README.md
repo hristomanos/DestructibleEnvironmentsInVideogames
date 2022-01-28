@@ -9,13 +9,13 @@ Increased obtainability of computing power; multi-core processors and advances i
 ## Abstract
 
 Investigation of currently popular methods for implementing destructible environments in a computer game and testing the performance of one of the methods. 
-The method chosen involves the qualities of voxels and how their volumetric nature can be used to generate destructible environments.
+The method chosen involves the qualities of voxels and how their volumetric nature can be used to generate destructible environments. DirectX 11 API and IMGUI plugin were utilised to set up the rendering engine and experiment with voxels.
 
 ---
 
 ## Geometry Preparation
 
-Next, youâ€™ll add a new file to this repository.
+Next, you’ll add a new file to this repository.
 
 1. Voronoi shatter, slicing
 2. Boolean operations
