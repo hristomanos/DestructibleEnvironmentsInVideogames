@@ -22,8 +22,6 @@ The method chosen involves the qualities of voxels and how their volumetric natu
 
 ## Geometry Preparation
 
-Next, you’ll add a new file to this repository.
-
 1. Voronoi shatter, slicing
 2. Boolean operations
 3. Convex decomposition
