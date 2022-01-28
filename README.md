@@ -6,6 +6,13 @@ Increased obtainability of computing power; multi-core processors and advances i
 
 ---
 
+## What you need to run the application
+
+1. Visual studio
+2. DirectX 11 API
+
+---
+
 ## Abstract
 
 Investigation of currently popular methods for implementing destructible environments in a computer game and testing the performance of one of the methods. 
